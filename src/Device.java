@@ -1,25 +1,30 @@
 import java.util.*;
 
 public class Device {
-    String name;
-    int[] dienstleistungen;
     int version;
-    public int[][] versions = {{1,2,3}, {1,2,3}, {1,2,4}};
-    //int[][] updates;
+    ArrayList<Integer> dienstleistungen;
+    ArrayList<ArrayList<Integer>> updates;
 
-    public Device(String name, int version, int[] dienstleistungen, int[][] versions){
-        this.name = name;
-        this.dienstleistungen = versions[1];
+    public Device(int version, ArrayList<Integer> dienstleistungen, ArrayList<ArrayList<Integer>> updates){
         this.version = version;
-        //this.versions = versions;
+        this.dienstleistungen = dienstleistungen;
+        this.updates = updates;
 
+        if(version != 0){
+            this.dienstleistungen = updates.get(version);
+        }
     }
-    public static void main (String[] args){
-        int[][] versions = {{1,2,3}, {1,2,3}, {1,2,4}};
-        System.out.println(Arrays.toString(versions[1]));
-    }
-    /*public  int[][] getUpdates(){
 
-    }*/
-    //test
+    public float getVersion() {
+        return version;
+    }
+
+    public ArrayList<Integer> getDienstleistungen(){
+        return dienstleistungen;
+    }
+
+    public ArrayList<ArrayList<Integer>> getUpdates(){
+        return updates;
+    }
+
 }
