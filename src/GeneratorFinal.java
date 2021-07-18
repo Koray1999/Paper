@@ -3,17 +3,6 @@ import java.util.Random;
 
 public class GeneratorFinal {
 
-    public static void main (String[] args){
-        ArrayList<Device> konfiguration = new ArrayList<Device>();
-
-        for(int i=0; i<10; i++){
-            konfiguration.add(gerätErstellen(3,10));
-        }
-        System.out.println(konfiguration);
-
-        abhängigkeitenErstellen(konfiguration);
-    }
-
     //Methode zum Geräte generieren
     public static Device gerätErstellen(int nrOfUpdatesPerDevice, int nrOfServicesPerDevice){
         Random rand = new Random();
@@ -32,7 +21,7 @@ public class GeneratorFinal {
         //Leere Updates mit Dienstleistungen füllen
         for(int i=0; i<updates.size();i++){
             while(updates.get(i).size()<anzahlDiensleistungen){
-                hilfsVariable = rand.nextInt(10);
+                hilfsVariable = rand.nextInt(nrOfServicesPerDevice);
                 if(!updates.get(i).contains(hilfsVariable)){
                     updates.get(i).add(hilfsVariable);
                 }
@@ -47,7 +36,7 @@ public class GeneratorFinal {
     //Methode zum Geräte generieren
 
     //Methode zum Abhängigkeiten generieren
-    public static void abhängigkeitenErstellen(ArrayList<Device> konfiguration){
+    public static ArrayList<ArrayList<Integer>> abhängigkeitenErstellen(ArrayList<Device> konfiguration){
         ArrayList<ArrayList<Integer>> abhängigkeiten = new ArrayList<ArrayList<Integer>>();
         int anzahlGeräte = konfiguration.size();
         ArrayList<Integer> momentanteDienstleistungen = new ArrayList<Integer>();
@@ -73,7 +62,7 @@ public class GeneratorFinal {
             }
 
         }
-        System.out.println(abhängigkeiten);
+        return abhängigkeiten;
     }
     //Methode zum Abhängigkeiten generieren
 }
