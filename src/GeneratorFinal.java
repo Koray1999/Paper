@@ -6,14 +6,13 @@ public class GeneratorFinal {
     //Methode zum Geräte generieren
     public static Device gerätErstellen(int nrOfUpdatesPerDevice, int nrOfServicesPerDevice){
         Random rand = new Random();
-        int anzahlUpdatesProGerät = nrOfUpdatesPerDevice;
         int versionsNummer = rand.nextInt(nrOfUpdatesPerDevice);
-        int anzahlDiensleistungen = nrOfServicesPerDevice;
+        int services = 10;
         int hilfsVariable;
         ArrayList<ArrayList<Integer>> updates = new ArrayList<ArrayList<Integer>>();
 
         //Leere Updates in Liste eintragen
-        for(int i=0; i<anzahlUpdatesProGerät; i++){
+        for(int i = 0; i< nrOfUpdatesPerDevice; i++){
             updates.add(new ArrayList<Integer>());
         }
         //Leere Updates in Liste eintragen
@@ -34,11 +33,11 @@ public class GeneratorFinal {
 
         //Leere Updates mit Dienstleistungen füllen
 
-        for(int i=0; i<anzahlUpdatesProGerät;i++){
+        for(int i = 0; i< nrOfUpdatesPerDevice; i++){
             //"Originale" Dienstleistungen füllen
             if(i == 0){
-                while(updates.get(i).size()<anzahlDiensleistungen){
-                    hilfsVariable = rand.nextInt(nrOfServicesPerDevice);
+                while(updates.get(i).size()< nrOfServicesPerDevice){
+                    hilfsVariable = rand.nextInt(services);
                     if(!updates.get(i).contains(hilfsVariable)){
                         updates.get(i).add(hilfsVariable);
                     }
@@ -46,7 +45,7 @@ public class GeneratorFinal {
             }//"Originale" Dienstleistungen füllen
             //Mit jedem Update eine Dienstleistungen rauspicken und um 1 erhöhen
             else{
-                hilfsVariable = rand.nextInt(anzahlDiensleistungen);
+                hilfsVariable = rand.nextInt(nrOfServicesPerDevice);
                 updates.get(i).addAll(updates.get(i-1));
                 updates.get(i).set(hilfsVariable, updates.get(i).get(hilfsVariable)+1);
             }

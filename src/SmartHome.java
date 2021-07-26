@@ -26,6 +26,7 @@ public class SmartHome extends GeneratorFinal{
             isDominated(a);
         }
         System.out.println(SmartHomeGeräte.get(0).getUpdates());
+
     }
     //----------------------------------------------------------------------------------------------------//
 
