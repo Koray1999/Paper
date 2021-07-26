@@ -19,7 +19,8 @@ public class GeneratorFinal {
         //Leere Updates in Liste eintragen
 
         //Leere Updates mit Dienstleistungen füllen
-        for(int i=0; i<updates.size();i++){
+/*
+        for(int i=0; i<anzahlUpdatesProGerät;i++){
             while(updates.get(i).size()<anzahlDiensleistungen){
                 hilfsVariable = rand.nextInt(nrOfServicesPerDevice);
                 if(!updates.get(i).contains(hilfsVariable)){
@@ -27,6 +28,29 @@ public class GeneratorFinal {
                 }
             }
 
+        }
+*/
+        //Leere Updates mit Dienstleistungen füllen
+
+        //Leere Updates mit Dienstleistungen füllen
+
+        for(int i=0; i<anzahlUpdatesProGerät;i++){
+            //"Originale" Dienstleistungen füllen
+            if(i == 0){
+                while(updates.get(i).size()<anzahlDiensleistungen){
+                    hilfsVariable = rand.nextInt(nrOfServicesPerDevice);
+                    if(!updates.get(i).contains(hilfsVariable)){
+                        updates.get(i).add(hilfsVariable);
+                    }
+                }
+            }//"Originale" Dienstleistungen füllen
+            //Mit jedem Update eine Dienstleistungen rauspicken und um 1 erhöhen
+            else{
+                hilfsVariable = rand.nextInt(anzahlDiensleistungen);
+                updates.get(i).addAll(updates.get(i-1));
+                updates.get(i).set(hilfsVariable, updates.get(i).get(hilfsVariable)+1);
+            }
+            //Mit jedem Update eine Dienstleistungen rauspicken und um 1 erhöhen
         }
         //Leere Updates mit Dienstleistungen füllen
 
