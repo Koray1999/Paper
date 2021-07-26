@@ -3,6 +3,7 @@ import java.util.ArrayList;
 public class SmartHome extends GeneratorFinal{
     static ArrayList<Device> SmartHomeGeräte = new ArrayList<Device>();
     static ArrayList<ArrayList<Integer>> abhängigkeiten = new ArrayList<ArrayList<Integer>>();
+    static ArrayList<ArrayList<Integer>> updatesCopy = new ArrayList<ArrayList<Integer>>();
     static int nrOfDevices = 10;
     static int nrOfUpdatesPerDevice = 3;
     static int nrOfServicesPerDevice = 10;
@@ -18,37 +19,35 @@ public class SmartHome extends GeneratorFinal{
         abhängigkeiten = abhängigkeitenErstellen(SmartHomeGeräte);
         System.out.println(abhängigkeiten);
         System.out.println(SmartHomeGeräte.get(0).getUpdates());
+
+        System.out.println("--------");
+
+        for (Device a : SmartHomeGeräte){
+            isDominated(a);
+        }
+        System.out.println(SmartHomeGeräte.get(0).getUpdates());
     }
     //----------------------------------------------------------------------------------------------------//
 
-    public static void isDominated(){
-        // i ist das Gerät
-        ArrayList<ArrayList<Integer>> hilfsArray = new ArrayList<ArrayList<Integer>>();
+    public static void isDominated(Device device){
+        int counter=0;
 
-        for(int i = 0; i < nrOfUpdatesPerDevice; i++){
-            for (int j = i +1; j< nrOfUpdatesPerDevice; j++){
-                if(SmartHomeGeräte.get(i).getUpdates().get(j).containsAll(SmartHomeGeräte.get(i).getUpdates().get(i))){
-                    SmartHomeGeräte.get(i).getUpdates().remove(i);
-                }
-            }
-
+        for (ArrayList<Integer> a : device.getUpdates()){
+            updatesCopy.add(a);
         }
-    }
 
-    public static void isDominated2(){
-        ArrayList<ArrayList<Integer>> hilfsArray = new ArrayList<ArrayList<Integer>>();
-
-        for (int i=0; i<nrOfUpdatesPerDevice; i++){
-            hilfsArray = SmartHomeGeräte.get(i).getUpdates();
-
-            for (int j=i+1; j<nrOfUpdatesPerDevice; j++){
-                if (hilfsArray.get(j).containsAll(hilfsArray.get(i))){
-                    SmartHomeGeräte.get(i).getUpdates().remove(i);
-                    j = nrOfUpdatesPerDevice;
+        for (ArrayList<Integer> b : updatesCopy){
+            counter++;
+            for (int i=counter; i<updatesCopy.size(); i++){
+                if (updatesCopy.get(i).containsAll(b)){
+                    device.getUpdates().remove(b);
+                    break;
                 }
             }
         }
+        updatesCopy.clear();
     }
+
     //----------------------------------------------------------------------------------------------------//
 }
 
