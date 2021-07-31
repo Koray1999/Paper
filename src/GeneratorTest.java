@@ -1,4 +1,4 @@
-import java.lang.reflect.Array;
+
 import java.util.*;
 
 public class GeneratorTest {
@@ -87,7 +87,7 @@ public class GeneratorTest {
         }
 
         for(int i=0; i<anzahlGeräte; i++){
-            ArrayList<Integer> hilfsArray = konfiguration.get(i).getDienstleistungen();
+            ArrayList<Integer> hilfsArray = konfiguration.get(i).getServices();
             int hilfVariable = hilfsArray.get(rand.nextInt(10));
 
             ArrayList<Integer> test = new ArrayList<Integer>();
@@ -111,7 +111,7 @@ public class GeneratorTest {
 
         for(int i=0; i<anzahlGeräte; i++){
             Device momentantesGerät = konfiguration.get(i);
-            momentanteDienstleistungen = momentantesGerät.getDienstleistungen();
+            momentanteDienstleistungen = momentantesGerät.getServices();
             abhängigkeiten.get(i).add(i);
             abhängigkeiten.get(i).add(momentanteDienstleistungen.get(rand.nextInt(10)));
             abhängigkeiten.get(i).add(rand.nextInt(9)+1);

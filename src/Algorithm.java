@@ -5,8 +5,35 @@ public class Algorithm extends SmartHome{
     static ArrayList<ArrayList<Integer>> abhängigkeiten = new ArrayList<ArrayList<Integer>>();
 
     public static void main(String[] args){
+        SmartHome.main(null);
 
-        SmartHomeGeräte = SmartHome.SmartHomeGeräte;
-        abhängigkeiten = SmartHome.abhängigkeiten;
+        for (Device a : SmartHomeDevices){
+            isDominated(a);
+        }
+        System.out.println(SmartHomeDevices.get(0).getUpdates());
+    }
+
+
+    public static void isDominated(Device device){
+        int counter=0;
+
+        for (ArrayList<Integer> a : device.getUpdates()){
+            updatesCopy.add(a);
+        }
+
+        for (ArrayList<Integer> b : updatesCopy){
+            counter++;
+            for (int i=counter; i<updatesCopy.size(); i++){
+                if (updatesCopy.get(i).containsAll(b)){
+                    device.getUpdates().remove(b);
+                    break;
+                }
+            }
+        }
+        updatesCopy.clear();
+    }
+
+    public static void createUCG(){
+
     }
 }

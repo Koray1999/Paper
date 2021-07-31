@@ -2,16 +2,16 @@ import java.util.*;
 
 public class Device {
     int version;
-    ArrayList<Integer> dienstleistungen;
+    ArrayList<Integer> services;
     ArrayList<ArrayList<Integer>> updates;
 
     public Device(int version, ArrayList<Integer> dienstleistungen, ArrayList<ArrayList<Integer>> updates){
         this.version = version;
-        this.dienstleistungen = dienstleistungen;
+        this.services = dienstleistungen;
         this.updates = updates;
 
         if(version != 0){
-            this.dienstleistungen = updates.get(version);
+            this.services = updates.get(version);
         }
     }
 
@@ -19,8 +19,8 @@ public class Device {
         return version;
     }
 
-    public ArrayList<Integer> getDienstleistungen(){
-        return dienstleistungen;
+    public ArrayList<Integer> getServices(){
+        return services;
     }
 
     public ArrayList<ArrayList<Integer>> getUpdates(){
