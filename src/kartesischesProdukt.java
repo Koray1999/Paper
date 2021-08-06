@@ -10,19 +10,43 @@ public class kartesischesProdukt extends SmartHome{
         SmartHome.main(null);
         System.out.println("-----------------------------------------------------------------------");
 
-        ArrayList<ArrayList<Integer>> ll = new ArrayList<>();
+        Set<Integer> device1 = new HashSet<>();
+        Set<Integer> device3 = new HashSet<>();
+        Set<Integer> device2 = new HashSet<>();
+        Set<Integer> device4 = new HashSet<>();
 
-        Set<Set<?>> helf = new HashSet<>();
+        device1.add(SmartHomeDevices.get(0).getUpdates().get(0).get(0));
+        device1.add(SmartHomeDevices.get(0).getUpdates().get(0).get(1));
+        device3.add(SmartHomeDevices.get(0).getUpdates().get(1).get(0));
+        device3.add(SmartHomeDevices.get(0).getUpdates().get(1).get(1));
 
-               
-        //System.out.println(cartesianProduct());
+        Set<Set<?>> test = new HashSet<>();
+        test.add(device1);
+        test.add(device3);
+
+        device2.add(SmartHomeDevices.get(1).getUpdates().get(0).get(0));
+        device2.add(SmartHomeDevices.get(1).getUpdates().get(0).get(1));
+        device4.add(SmartHomeDevices.get(1).getUpdates().get(1).get(0));
+        device4.add(SmartHomeDevices.get(1).getUpdates().get(1).get(1));
+
+        Set<Set<?>> test2 = new HashSet<>();
+        test2.add(device2);
+        test2.add(device4);
+
+        Set<?> targetSet = Set.copyOf(SmartHomeDevices.get(1).getUpdates());
 
 
 
-        //System.out.println(ll);
+        System.out.println(test);
+        System.out.println(test2);
+
+
+
+        System.out.println(cartesianProduct(test, test2));
+
 
         System.out.println("-----------------------------------------------------------------------");
-
+/*
         Set<Integer> test = new HashSet();
         test.add(1);
         test.add(2);
@@ -64,7 +88,11 @@ public class kartesischesProdukt extends SmartHome{
         System.out.println(lol);
         System.out.println(lul);
 
-        System.out.println(cartesianProduct(lel, lol, lul));
+
+        System.out.println(cartesianProduct(lel, lol));
+ */
+
+
     }
 
 

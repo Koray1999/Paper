@@ -13,12 +13,19 @@ public class SmartHome extends GeneratorFinal{
             SmartHomeDevices.add(createDevice(nrOfUpdatesPerDevice, nrOfServicesPerDevice));
         }
 
+        System.out.println("Die Geräte:");
         System.out.println(SmartHomeDevices);
+        System.out.println("--------");
+
+        System.out.println("Die Abhängigkeiten");
         dependencies = createDependency(SmartHomeDevices, nrOfServicesPerDevice);
         System.out.println(dependencies);
+        System.out.println("--------");
+
+        System.out.println("Die Updates jedes einezlnen Geräts");
         System.out.println(SmartHomeDevices.get(0).getUpdates());
         System.out.println(SmartHomeDevices.get(1).getUpdates());
-        //System.out.println("--------");
+        System.out.println("--------");
 
 
 

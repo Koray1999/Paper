@@ -11,8 +11,10 @@ public class Algorithm extends SmartHome {
         for (Device a : SmartHomeDevices) {
             isDominated(a);
         }
-        System.out.println(SmartHomeDevices.get(0).getUpdates());
 
+        System.out.println("Die Geräte nachdem dominierte Updates entfernt wurden");
+        System.out.println(SmartHomeDevices.get(0).getUpdates());
+        System.out.println(SmartHomeDevices.get(1).getUpdates());
     }
 
     public static void isDominated(Device device) {
@@ -44,8 +46,5 @@ public class Algorithm extends SmartHome {
                 }
             }
         }
-    }
-
-    public static void test() {
     }
 }

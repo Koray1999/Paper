@@ -6,7 +6,7 @@ public class GeneratorFinal {
     public static Device createDevice(int nrOfUpdatesPerDevice, int nrOfServicesPerDevice){
         Random rand = new Random();
         int versionNr = rand.nextInt(nrOfUpdatesPerDevice);
-        int services = 10;
+        int services = 50;
         int hilfsVariable;
         ArrayList<ArrayList<Integer>> updates = new ArrayList<ArrayList<Integer>>();
 
