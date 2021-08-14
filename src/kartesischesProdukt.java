@@ -1,8 +1,7 @@
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+
 
 public class kartesischesProdukt extends SmartHome{
 
@@ -91,6 +90,24 @@ public class kartesischesProdukt extends SmartHome{
 
         System.out.println(cartesianProduct(lel, lol));
  */
+
+        Set<Set<?>> esWirdKlappen = new HashSet<>();
+
+        Set<Integer> inshallah = new HashSet<>();
+
+        for (Device device : SmartHomeDevices){
+            for (ArrayList<Integer> update : device.getUpdates()){
+                for (Integer service : update){
+                    inshallah.add(service);
+                }
+                esWirdKlappen.add(inshallah);
+            }
+        }
+
+
+
+        System.out.println(inshallah);
+        System.out.println(esWirdKlappen);
 
 
     }

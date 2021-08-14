@@ -1,9 +1,9 @@
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class Algorithm extends SmartHome {
-    static ArrayList<ArrayList<Integer>> updateConfigurationGraph = new ArrayList<ArrayList<Integer>>();
-    static ArrayList<Integer> updateConfiguration = new ArrayList<Integer>();
+    static ArrayList<ArrayList<Integer>> updatesCopy = new ArrayList<ArrayList<Integer>>();
 
     public static void main(String[] args) {
         SmartHome.main(null);
@@ -15,6 +15,15 @@ public class Algorithm extends SmartHome {
         System.out.println("Die Geräte nachdem dominierte Updates entfernt wurden");
         System.out.println(SmartHomeDevices.get(0).getUpdates());
         System.out.println(SmartHomeDevices.get(1).getUpdates());
+
+        List<List<ArrayList<Integer>>> allDeviceUpdates = new ArrayList<>();
+
+        for (Device b : SmartHomeDevices){
+            allDeviceUpdates.add(b.updates);
+        }
+        System.out.println("Erstellen des UpdateConfigurationGraphs");
+        System.out.println(allDeviceUpdates);
+        System.out.println(cartesianProduct(allDeviceUpdates));
     }
 
     public static void isDominated(Device device) {
@@ -36,15 +45,24 @@ public class Algorithm extends SmartHome {
         updatesCopy.clear();
     }
 
-    public static void createUCG() {
-        ArrayList<Integer> update = new ArrayList<>();
-
-        for (int i = 0; i < SmartHomeDevices.size(); i++) {
-            for (int j = 0; j < SmartHomeDevices.get(i).getUpdates().size(); j++) {
-                for (ArrayList<Integer> a : SmartHomeDevices.get(i).getUpdates()) {
-
+    public static <T> List<List<List<T>>> cartesianProduct(List<List<ArrayList<T>>> lists) {
+        List<List<List<T>>> resultLists = new ArrayList<List<List<T>>>();
+        if (lists.size() == 0) {
+            resultLists.add(new ArrayList<List<T>>());
+            return resultLists;
+        } else {
+            List<ArrayList<T>> firstList = lists.get(0);
+            List<List<List<T>>> remainingLists = cartesianProduct(lists.subList(1, lists.size()));
+            for (List<T> condition : firstList) {
+                for (List<List<T>> remainingList : remainingLists) {
+                    ArrayList<List<T>> resultList = new ArrayList<List<T>>();
+                    resultList.add(condition);
+                    resultList.addAll(remainingList);
+                    resultLists.add(resultList);
                 }
             }
         }
+        return resultLists;
     }
+
 }
