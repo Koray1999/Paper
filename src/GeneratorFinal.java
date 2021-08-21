@@ -1,19 +1,38 @@
+import java.time.LocalDate;
+
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
 
 public class GeneratorFinal {
+
+
     //Methode zum Geräte generieren
     public static Device createDevice(int nrOfUpdatesPerDevice, int nrOfServicesPerDevice){
         Random rand = new Random();
         int versionNr = rand.nextInt(nrOfUpdatesPerDevice);
         int services = 50;
+
         int hilfsVariable;
-        ArrayList<ArrayList<Integer>> updates = new ArrayList<ArrayList<Integer>>();
+        ArrayList<ArrayList<Integer>> updates = new ArrayList<>();
+        ArrayList<ArrayList<LocalDate>> updatesAge = new ArrayList<>();
+
+        //Leere UpdatesAge in Liste eintragen
+        for(int i = 0; i< nrOfUpdatesPerDevice; i++){
+            updatesAge.add(new ArrayList<>());
+        }
+
+        //Leere UpdatesAge mit Dienstleistungen füllen
+        for(int i = 0; i< nrOfUpdatesPerDevice; i++){
+            updatesAge.get(i).add(LocalDate.ofEpochDay(ThreadLocalRandom.current().nextInt(-100*365, 100*365)));
+        }
 
         //Leere Updates in Liste eintragen
         for(int i = 0; i< nrOfUpdatesPerDevice; i++){
-            updates.add(new ArrayList<Integer>());
+            updates.add(new ArrayList<>());
         }
+
 
         //Leere Updates mit Dienstleistungen füllen
         for(int i = 0; i< nrOfUpdatesPerDevice; i++){
@@ -40,19 +59,19 @@ public class GeneratorFinal {
                 updates.get(i).addAll(updates.get(i-1));
             }
         }
-        return new Device(versionNr, updates.get(0), updates);
+        return new Device(versionNr, updates.get(0), updates, updatesAge);
     }
 
 
     //Methode zum Abhängigkeiten generieren
     public static ArrayList<ArrayList<Integer>> createDependency(ArrayList<Device> konfiguration, int nrOfServicesPerDevice){
-        ArrayList<ArrayList<Integer>> dependencies = new ArrayList<ArrayList<Integer>>();
+        ArrayList<ArrayList<Integer>> dependencies = new ArrayList<>();
         int nrOfDevices = konfiguration.size();
-        ArrayList<Integer> momentanteDienstleistungen = new ArrayList<Integer>();
+        ArrayList<Integer> momentanteDienstleistungen = new ArrayList<>();
         Random rand = new Random();
 
         for(int i=0; i<nrOfDevices; i++){
-            dependencies.add(new ArrayList<Integer>());
+            dependencies.add(new ArrayList<>());
         }
 
         for(int i=0; i<nrOfDevices; i++){

@@ -1,8 +1,10 @@
 import java.util.ArrayList;
+import java.util.List;
 
 public class SmartHome extends GeneratorFinal{
-    static ArrayList<Device> SmartHomeDevices = new ArrayList<Device>();
-    static ArrayList<ArrayList<Integer>> dependencies = new ArrayList<ArrayList<Integer>>();
+    static ArrayList<Device> SmartHomeDevices = new ArrayList<>();
+    static ArrayList<ArrayList<Integer>> dependencies = new ArrayList<>();
+    static List<List<List<Integer>>> updateConfigurationGraph = new ArrayList<>();
     static int nrOfDevices = 2;
     static int nrOfUpdatesPerDevice = 2;
     static int nrOfServicesPerDevice = 2;
