@@ -9,10 +9,10 @@ public class GeneratorFinal {
 
 
     //Methode zum Geräte generieren
-    public static Device createDevice(int nrOfUpdatesPerDevice, int nrOfServicesPerDevice){
+    public static Device createDevice(int nrOfUpdatesPerDevice, int nrOfServicesPerDevice, int services){
         Random rand = new Random();
         int versionNr = rand.nextInt(nrOfUpdatesPerDevice);
-        int services = 50;
+
 
         int hilfsVariable;
         ArrayList<ArrayList<Integer>> updates = new ArrayList<>();
@@ -83,9 +83,9 @@ public class GeneratorFinal {
             int test = rand.nextInt(nrOfDevices);
             if(test != i){
                 dependencies.get(i).add(test);
-            }else if(test < nrOfDevices-2){
+            }else if(test == 0){
                 dependencies.get(i).add(test+1);
-            }else{
+            }else {
                 dependencies.get(i).add(test-1);
             }
 
@@ -93,4 +93,32 @@ public class GeneratorFinal {
         return dependencies;
     }
     //Methode zum Abhängigkeiten generieren
+
+
+    public static ArrayList<ArrayList<Integer>> createDependencies2(int nrOfDependencies){
+        ArrayList<ArrayList<Integer>> dependencies = new ArrayList<>();
+
+        ArrayList<Integer> allServices = new ArrayList<>();
+        Random rand = new Random();
+
+
+        for(int i=0; i<nrOfDependencies; i++){
+            dependencies.add(new ArrayList<>());
+        }
+
+        for (Device device : SmartHome.SmartHomeDevices){
+            for (ArrayList<Integer> updates : device.getUpdates()){
+                for (int service : updates){
+                    allServices.add(service);
+                }
+            }
+        }
+
+        for (int i=0; i<nrOfDependencies; i++){
+            dependencies.get(i).add(rand.nextInt(SmartHome.nrOfDevices));
+            dependencies.get(i).add(allServices.get(rand.nextInt(allServices.size())));
+        }
+
+        return dependencies;
+    }
 }

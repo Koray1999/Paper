@@ -7,17 +7,19 @@ public class SmartHome extends GeneratorFinal{
     static ArrayList<ArrayList<Integer>> dependencies = new ArrayList<>();
     static List<List<List<Integer>>> updateConfigurationGraph = new ArrayList<>();
     static List<List<List<LocalDate>>> updateConfigurationGraphDates = new ArrayList<>();
-    static int nrOfDevices = 2;
+    static int nrOfDevices = 5;
     static int nrOfUpdatesPerDevice = 2;
     static int nrOfServicesPerDevice = 2;
+    static int nrOfDependencies = 2;
+    static int services = 50;
 
     public static void main (String[] args){
 
         for(int i=0; i<nrOfDevices; i++){
-            SmartHomeDevices.add(createDevice(nrOfUpdatesPerDevice, nrOfServicesPerDevice));
+            SmartHomeDevices.add(createDevice(nrOfUpdatesPerDevice, nrOfServicesPerDevice, services));
         }
 
-        dependencies = createDependency(SmartHomeDevices, nrOfServicesPerDevice);
+        dependencies = createDependencies2(nrOfDependencies);
 
         System.out.println("Die Geräte:");
         System.out.println(SmartHomeDevices);
