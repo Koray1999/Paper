@@ -1,0 +1,65 @@
+\chapter{Einführung}
+
+In den letzten Jahren stieg die Anzahl der Smart Home Geräte stark. Laut Verified Market Research wird
+der Smart Home Markt im Jahr 2019 auf bereits 80 Milliarden Dollar geschätzt. Prognostiziert werden 207.88 
+Milliarden Dollar im Jahr 2027. Dies entspricht einer jährlichen Wachstumsrate von 13.52 Prozent.
+~\cite{https://www.verifiedmarketresearch.com/product/global-smart-home-market-size-and-forecast-to-2025/}
+Zudem ist es so, dass innerhalb von Smart Home Systemen die Anzahl der Geräte ebenfalls stetig steigt. Während 2016
+durchschnittlich 5.8 Geräte über ein Smart Home System vernetzt waren, waren es 2018 schon bereits 8.1 Geräte. 
+~\cite{https://www.homeandsmart.de/} Es ist zu vermuten, dass sich dieser Trend vorerst so weiterentwickeln wird.
+Logischerweise steigt mit der Anzahl der Geräte in einem Smart Home System auch die Anzahl der Updates und somit 
+insgesamt die Komplexität von Smart Home Systemen. Das Problem hierbei ist, dass mit steigender Komplexität zum einen automatisch eine höhere
+Fehleranfälligkeit bezüglich Updates einhergeht, zum anderen wird es schwieriger Fehler zu beheben,
+die durch Updates verursacht werden. Updates im Einzelnen besitzen bereits viele Fehlerquellen, wie zum Beispiel Sicherheitslücken 
+oder generell fehlerhafte Implementationen. Dies sind jedoch Aspekte die bereits vom Entwickler weitestgehend vermieden werden.
+Viel Problematischer ist das Zusammspiel verschiedener Geräte und den dazugehörigen Updates. Ein an sich fehlerfreies Update
+kann bei der Installtion in einem Smart Home System, dennoch große Probleme verursachen. Was ist wenn zum Beispiel ein Update eine Funktion
+eines Geräts so verändert, dass ein anderes Gerät nicht mehr darauf zugreifen kann. Durch solche kleine Änderungen
+können Abhängigkeiten zwischen Geräten zerstört werden, wodurch ganze Teile eines Smart Home Systems ausfallen
+können. Solch ein Ausfall ist für den Nutzer meist ein großer finanzieller Schaden, da Updates oft nicht 
+rückgängig gemacht werden können und somit Ersatz beschafft werden muss.
+Aus diesen Gründen sind präventive Maßnahmen notwendig,  um die Langlebigkeit von Smart Home Systemen gewährleisten zu können.
+Langlebigkeit wird nämlich von den meisten Usern erwartet, wie man an der Resonanz zum Abschalten der HueBridge V1 von Philips sehen kann 
+~\cite{Paper [4]}
+
+
+
+
+
+
+\section{Ziel der Arbeit}
+Ziel dieser Arbeit ist die Implementation und Evaluation eines Algorithmus, welcher Abhaengigkeiten zwischen Geraeten untersucht und basierend auf diesen Abhängigkeiten Updatekonfigurationen findet, die keine Probleme verursachen.
+Mit diesem Algorithmus wäre es möglich Updates bereits vor der Installation zu überprüfen und so sicherzugehen, dass sie 
+keine Ausfälle verursachen. Problem hierbei ist, wie bereits erwähnt, dass es etliche Smart Home Anbieter mit verschiedener
+Software und Geräten gibt. Meist findet man selbst innerhalb eines Smart Home Systems bereits Geräte, die nicht vom selben
+Hersteller sind. Dies erschwert die Entwicklungs eines Algorithmus, welcher allgemein an allen Arten von Systemen anwendbar sein soll.
+Für die Implementation eines Algorithmus ist es daher notwendig gewisse Dinge vorauszusetzen und zu definieren. Zunächst die Definition eines Smart Homes:
+
+~\cite{Paper [12]}
+A smart home has a set of devices that are connected through
+a platform. Each device has a certain software version and
+a set of available updates. Each software version has a set
+of available predefined services. Devices can use services of
+other devices which creates dependencies. An update configuration
+is one of the finite states of the nondeterministic
+finite automaton (NFA) that can be constructed by using the
+configurations as states and connecting them using individual
+updates as transitions.
+
+Nun benötigt man noch eine Möglichkeit die Informationen über die Services und Updates eines Geräts leicht abfragen zu können.
+Eine solche Abfrage müsste in der Realität für jedes Gerät individuell angepasst werden. Dies ist jedoch nicht umsetzbar,
+weswegen es nötig ist einen einheitlichen Weg zu finden. Geräte besitzen üblicherweise Metadaten, welche Informationen über 
+Firmware Version, Größe usw. enthalten. Diesen Metadaten könnte man zusätzlich Informationen über Services und Updates 
+hinzufügen, sodass man einen schnellen Überblick über alle Geräte innerhalb eines Netzwerks erhalten kann.
+
+Der entwickelte Algorithmus wird nicht an realen Smart Home Systemen getestet, weswegen sich diese Frage 
+zunächst erübrigt. Es bieten sich zwei Möglichkeiten an den Algorithmus zu testen. Eine Möglichkeit ist eine statische Liste, welche man 
+man manuell mit Geräten und deren Updates füllt, oder ein Generator, welcher abhängig von Parametern ein "künstliches" Smart Home
+System kreiert. Parameter wären dann zum Beispiel die Anzahl der Geräte oder die Anzahl der Updates, die ein einzelnes Gerät besitzt.
+Der Generator bietet sich mehr an, da der Algorithmus nicht nur getestet, sondern auch evaluiert werden soll.
+Die Evaluation kann dann an unterschiedlich komplexen Smart Home Systemen durchgeführt werden, indem man die Parameter 
+dementsprechend verändert. Parameter wären zum Beispiel die Anzahl der Geräte, die Anzahl der Updates die ein Gerät besitzt oder 
+auch die Anzahl der Services. 
+
+ 
+
