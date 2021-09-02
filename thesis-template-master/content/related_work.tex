@@ -1,0 +1,117 @@
+\chapter{Related Work}\label{ch:related_work}
+
+
+In diesem Kapitel werden Smart Home Systeme genaue beleuchtet und  das Thema Dependency Management aufgegriffen, wobei bereits 
+bestehende Ansätze/Lösungen diesbezüglich genauer betrachtet. Zusätzlich wird der aktuelle Stand des Dependency Managements im 
+Bereich Smart Home untersucht.
+
+\section{Smart Homes}
+~\cite{Paper [12]}
+
+Im vorherigen Kapitel wurde bereits erwähnt, dass es viele Arten von Smart Home Systemen gibt. Im Rahmen dieser Arbeit
+ist es jedoch nicht notwendig die verschiedenen Smart Home Architekturen genauer zu beleuchten. Dennoch schadet es 
+nicht sich einen groben Überblick über die aktuellen Technologien zu verschaffen. Grob kann man die
+verschiedenen Architekturen darin unterscheiden, ob sie eine Verknüpfung zu einer Cloud besitzen. Cloud gebundene
+Architekturen bieten dem Nutzer meist eine einfachere Installation und Wartung, indem zum 
+Beispiel Updates automatisch installiert werden.Gleichzeitig bringen sie aber auch potenzielle Gefahren mit sich. Die 
+Abhängigkeit von einer Cloud macht Smart Home Systeme sehr verwundbar. Wird zum Beispiel ein externer Service, wie zum
+Beispiel die Cloud ausgeschaltet, kann es zu starken Ausfällen im System führen. [5](Towards Longevity of Smart Homes).
+Außerdem sind Geräte, die mit einer Cloud verbunden sind anfälliger gegenüber Angriffe von Außenstehen, die sich Zugriff auf
+das System beschaffen wollen.
+Nicht Cloud-gebundene Architekturen haben diese Nachteile nicht. Sie sind jedoch meist schwieriger zu implementieren, da 
+sie, wie im Falle von OpenHab, viel manuelle Konfiguration benötigen. Sie bieten dadurch jedoch auch mehr Sicherheit, da keine 
+starke Abhängigkeit zu anderen Dienstleistern nötig ist
+Natürlich könnte man Smart Home Systeme noch weiter spezifizieren, indem man einzelne Komponenten genauer beleuchet und 
+verschiedene Smart Home Anbieter miteinander vergleicht, jedoch ist dies, wie bereits erwähnt, im Rahmen dieser 
+Arbeit nicht notwendig. Der zu entwickelnde Algorithmus soll nämlich später theoretisch Platformunabhängig anwendbar sein.
+Dafür müssen logischerweise einige Aspekte vorausgesetzt werden. Zum Beispiel eine genaue Definition eines Smart Homes.
+Unter dem Begriff Smart Home stellen sich nämlich vermutlich verschiedene Personen verschiedene Dinge vor.
+Um dies zu vermeiden wird auf folgende Definition zurückgegriffen:
+
+[4]
+\textit{A smart home has a set of devices that are connected through
+a platform. Each device has a certain software version and
+a set of available updates. Each software version has a set
+of available predefined services. Devices can use services of
+other devices which creates dependencies. An update configuration
+is one of the finite states of the nondeterministic
+finite automaton (NFA) that can be constructed by using the
+configurations as states and connecting them using individual
+updates as transitions.}
+Wie man sieht ist diese Definition sehr generell gehalten. Auf Smart Home Architektur spezifische Aspekte wird nicht eingegangen,
+was im Rahmen dieser Arbeit völlig ausreichend ist.  
+
+
+
+
+Meist findet man selbst innerhalb eines Smart Home Systems bereits Geräte, die nicht vom selben
+Hersteller sind. Dies erschwert die Entwicklungs eines Algorithmus, welcher allgemein an allen Arten von Systemen anwendbar 
+sein soll. Für die Implementation eines Algorithmus ist es daher notwendig gewisse Dinge vorauszusetzen und zu definieren.
+Zunächst die Definition eines Smart Homes:
+
+
+
+
+
+
+\section{Dependency Managment}
+
+Unter Dependency Management versteht man im Allgemeinen das Strukturieren von Abhängigkeiten verschiedener 
+Systeme/Programme. Es ist oft so, dass Programme nur in Abhängigkeit von anderen Programmen starten können.
+Dies stellt auch kein Problem dar, solange die Abhängigkeiten in ihrer Anzahl überschaubar bleiben. 
+Realität ist jedoch, dass Programme meist von mehreren Programmen abhängig sind und diese
+Prorgramme wiederum abhängig von anderen Programmen sind. Bei zu vielen Abhängigkeiten verliert man 
+als Entwickler und auch als Nutzer schnell den Überblick. Dieses Wirrwarr an Abhängigkeiten nennt man auch "Dependency Hell".
+Gemeint ist damit, dass es ab einem bestimmten Punkt unmöglich wird den Überblick über alle Abhängigkeiten zu behalten.
+Je mehr Abhängigkeiten in einem System vorhanden sind, desto komplexer wird es, wodurch jede Änderung oder 
+Erweiterung einen riesen Aufwand mit sich zieht. 
+
+In der Dependency Hell gibt es eine Zusammenfassung der am häufigsten auftretenden Probleme:
+\begin{itemize}
+ \item Long Chain of Dependencies: Ein System A ist abhängig von einem System B. Das System B wiederum ist abhängig von einem System C.
+Möchte man nun System A nutzen benötigt man zusätzlich System B und damit auch System C. Solche lange Ketten können Konflikte verursachen.
+(Siehe Conflicting Dependencies)
+\item Conflicting Dependencies: 
+\item Conflicting Dependencies: 
+\item Conflicting Dependencies: 
+\item Conflicting Dependencies: 
+\end{itemize}
+
+Es existieren bereits viele Lösungen, um gegen diese Probleme vorzugehen. Dazu gehört:
+\begin{itemize}
+\item Version numbering: 
+\item Version numbering: 
+\item Version numbering: 
+\item Version numbering: 
+\item Version numbering: 
+\end{itemize}
+
+Bei Smart Home Systemen ist es jedoch so, dass in diesem Bereich Dependency Management völliges Neuland ist.
+
+Dabei werden Smart Home Systeme als 
+Luxusgüter angesehen und aufgrund der hohen Preise erwartet der Verbraucher auch lange Lebensspannen der Geräte.
+Dies kann aber ohne vernünftiges Dependency Management nicht gewährleistet werden. Natürlich gibt es auch andere Aspekte wie z.B. 
+discontinued services oder security issues, die die Lebenserwartung von Smart Home Systemen verringern. Dennoch sollte 
+dabei Dependency Management nicht untergehen. Dies sieht man am Beispiel des Logitech Harmony Hub's. Logitech hatte eine 
+neue Firmware Version für das Hub veröffentlicht, welche angeblich nur Sicherheitslücken schließen und Bugs fixen sollte.
+Nachdem Update kam es jedoch vermehrt zu Ausfällen zwischen dem Hub und third-party Geräten. Den Nutzern waren die Hände 
+gebunden, sie konnten nur darauf hoffen, dass Logitech die Probleme wieder behebt. Dies hat Logitech in diesem Fall auch getan,
+dennoch zeigt dieses kleine Beispiel, wie leichtsinnig Updates von Nutzern installiert werden. Eine andere Möglichkeit besitzt man auch als 
+Nutzer eines Smart Homes nicht wirklich, da es, wie eingangs erwähnt, zur Zeit keine Möglichkeiten gibt Updates vor der Installation zu 
+überprüfen. 
+
+
+
+ 
+Was genau ist ein Smart Home System? Towards Longevity in Smart home Systems kopieren?
+
+
+
+
+
+
+
+
+\input{content/related_work/listings} % input does not start a new page
+\input{content/related_work/math}
+\input{content/related_work/misc}
