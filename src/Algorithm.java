@@ -11,26 +11,28 @@ public class Algorithm extends SmartHome {
         SmartHome.main(null);
 
 
-
+        //Entferne dominierte Updates
         System.out.println("Die Updates der Geräte nachdem dominierte Updates entfernt wurden");
         for (Device a : SmartHomeDevices) {
             isDominated(a);
         }
-
         for (Device device : SmartHomeDevices){
             System.out.println(device.getUpdates());
         }
 
-
+        //Erstellen einer List aller Updates
+        List<List<ArrayList<Integer>>> allDeviceUpdates = new ArrayList<>();
+        for (Device b : SmartHomeDevices){
+            allDeviceUpdates.add(b.updates);
+        }
+        //Erstellen einer Liste mit dem Alter aller Updates
         List<List<ArrayList<LocalDate>>> allDeviceUpdateDates = new ArrayList<>();
         for (Device c : SmartHomeDevices){
             allDeviceUpdateDates.add(c.updateAge);
         }
 
-        List<List<ArrayList<Integer>>> allDeviceUpdates = new ArrayList<>();
-        for (Device b : SmartHomeDevices){
-            allDeviceUpdates.add(b.updates);
-        }
+
+
         System.out.println("Erstellen des UpdateConfigurationGraphs");
         SmartHome.updateConfigurationGraph = cartesianProduct(allDeviceUpdates);
         SmartHome.updateConfigurationGraphDates = cartesianProduct(allDeviceUpdateDates);
@@ -47,10 +49,13 @@ public class Algorithm extends SmartHome {
         System.out.println(updateConfigurationGraphDates);
 
 
-        paretoOptimal(updateConfigurationGraphDates);
+        //paretoOptimal(updateConfigurationGraphDates);
+        //System.out.println("Pareto Optimal:");
+        //System.out.println(SmartHome.updateConfigurationGraph);
 
         System.out.println("Subnetzwerke");
         createSubnetworks();
+        System.out.println(subnetworks);
 
 
         floodFill(subnetworks);
@@ -66,9 +71,10 @@ public class Algorithm extends SmartHome {
     public static void isDominated(Device device) {
         int counter = 0;
         int index;
-
         updatesCopy.addAll(device.getUpdates());
 
+        //Überprüft, ob ein Update eine Teilemenge eines anderen Updates ist und wenn ja wird das Update gelöscht
+        //Das dazugehörige Update Alter wird ebenfalls gelöscht
         for (ArrayList<Integer> b : updatesCopy) {
             counter++;
             for (int i = counter; i < updatesCopy.size(); i++) {
@@ -83,6 +89,8 @@ public class Algorithm extends SmartHome {
         updatesCopy.clear();
     }
 
+
+    //Erstellt das kartesiche Produkt aller Updates und damit den Updatekonfigurationsgraph
     public static <T> List<List<List<T>>> cartesianProduct(List<List<ArrayList<T>>> lists) {
         List<List<List<T>>> resultLists = new ArrayList<>();
         if (lists.size() == 0) {
@@ -104,15 +112,18 @@ public class Algorithm extends SmartHome {
     }
 
 
-
+    //Löscht Updatekonfigurationen in denen Dienstleistungen fehlen, die aufgrund einer Abhängigkeit benötigt werden
     public static List<List<List<Integer>>> deleteBreakingConfigurations(List<List<List<Integer>>> ucg){
+        // importantservice ist important, da Abhängigkeit zu diesem Service existiert
         int importantService;
-        List<List<List<Integer>>> ucg2 = new ArrayList<>(ucg);
-
         ArrayList<Integer> allServicesOfConfiguration = new ArrayList<>();
-
+        //toRemoveConfigs gibt die Stellen der Updatekonfigurationen an, die gelöscht werden müssen
         ArrayList<Integer> toRemoveConfigs = new ArrayList<>();
+        List<List<List<Integer>>> ucgCopy = new ArrayList<>(ucg);
 
+        //Die erste Schleife geht durch alle Abhängigkeiten und sucht die Dienstleistungen raus die aufgrund einer Abhängigkeit wichtig sind
+        //Die zweite Schleife geht alle Updatekonfigurationen im Updatekonfigurationsgraph durch und überprüft dann für jede "wichtige" Dienstleistung,
+        //ob sie in dieser Updatekonfiguration enthalten ist => wenn nicht, wird die Updatekonfiguration gelöscht
         for (ArrayList<Integer> dependence : dependencies){
             importantService = dependence.get(1);
             for (List<List<Integer>> configuration : ucg){
@@ -121,62 +132,54 @@ public class Algorithm extends SmartHome {
                 }
                 if (!allServicesOfConfiguration.contains(importantService) && !toRemoveConfigs.contains(ucg.indexOf(configuration))){
                     toRemoveConfigs.add(ucg.indexOf(configuration));
-                    //ucg2.remove(configuration);
-                    //SmartHome.updateConfigurationGraphDates.remove(ucg.indexOf(configuration));
                 }
                 allServicesOfConfiguration.clear();
             }
 
         }
         toRemoveConfigs.sort(Collections.reverseOrder());
-        System.out.println(toRemoveConfigs);
+        System.out.println("Die ungültigen Konfigurationen sind an Stelle:"+toRemoveConfigs);
 
         for (int test : toRemoveConfigs){
-            ucg2.remove(test);
+            ucgCopy.remove(test);
             SmartHome.updateConfigurationGraphDates.remove(test);
         }
-
-        return ucg2;
+        return ucgCopy;
     }
 
 
     public static void paretoOptimal(List<List<List<LocalDate>>> updateConfigurationGraphDates){
-        boolean dominiert = true;
+        boolean dominated = true;
         List<List<List<LocalDate>>> copy = new ArrayList<>(updateConfigurationGraphDates);
-
         List<Integer> dominatedConfigurations = new ArrayList<>();
 
+        //iteriert über alle Updatekonfigurationen und checkt, ob es Updatekonfigurationen gibt, in der jedes Gerät eine aktuellere Version enthält als in allen anderen Updatekonfigurationen
         for (int i=0; i<copy.size(); i++){
-
             for (int j=0; j<copy.size(); j++){
                 if (i != j){
                     for (int k=0; k<copy.get(i).size(); k++){
                         if (copy.get(i).get(k).get(0).isAfter(copy.get(j).get(k).get(0))){
-                            dominiert = false;
+                            dominated = false;
                         }
                     }
                 }else {
-                    dominiert = false;
+                    dominated = false;
                 }
-                if (dominiert && !dominatedConfigurations.contains(i)){
+                if (dominated && !dominatedConfigurations.contains(i)){
                     dominatedConfigurations.add(i);
                 }
-                dominiert = true;
+                dominated = true;
             }
-            dominiert = true;
+            dominated = true;
         }
-
         dominatedConfigurations.sort(Collections.reverseOrder());
         for (int dominatedConfiguration : dominatedConfigurations){
             SmartHome.updateConfigurationGraph.remove(dominatedConfiguration);
             SmartHome.updateConfigurationGraphDates.remove(dominatedConfiguration);
         }
-
-        System.out.println("Pareto Optimal:");
-        System.out.println(SmartHome.updateConfigurationGraph);
-
-
     }
+
+
 
     public static void createSubnetworks(){
         int dependency;
@@ -184,11 +187,9 @@ public class Algorithm extends SmartHome {
 
         for (int i=0; i<SmartHome.dependencies.size(); i++){
             dependency = dependencies.get(i).get(1);
-
             for (ArrayList<Integer> integers : SmartHome.dependencies) {
                 if (dependency == integers.get(1) && !help.contains(integers.get(0))) {
                     help.add(integers.get(0));
-
                     for (Device device : SmartHomeDevices) {
                         for (int k = 0; k < device.getUpdates().size(); k++) {
                             if (device.getUpdates().get(k).contains(dependency) && !help.contains(SmartHomeDevices.indexOf(device))) {
@@ -200,11 +201,9 @@ public class Algorithm extends SmartHome {
 
                 }
             }
-
             subnetworks.add(new ArrayList<>(help));
             help.clear();
         }
-        System.out.println(subnetworks);
     }
 
     public static void floodFill(ArrayList<ArrayList<Integer>> subnetworks){
