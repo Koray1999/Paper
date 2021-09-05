@@ -1,0 +1,58 @@
+\chapter{Einführung}
+
+In den letzten Jahren stieg die Anzahl der Smart Home Geräte stark. Laut Verified Market Research wird
+der gloable Smart Home Markt im Jahr 2019 auf bereits 80 Milliarden Dollar geschätzt. Prognostiziert werden 207.88 
+Milliarden Dollar im Jahr 2027. Dies entspricht einer jährlichen Wachstumsrate von 13.52 Prozent [2].
+Zudem ist es so, dass innerhalb von Smart Home Systemen die Anzahl der Geräte ebenfalls stetig steigt. Während 2016
+durchschnittlich 5.8 Geräte über ein Smart Home System vernetzt waren, waren es 2018 schon bereits 8.1 Geräte [3]. 
+Es ist zu vermuten, dass sich dieser Trend vorerst so weiterentwickeln wird und somit Smart Home Systeme immer
+größer werden. Wie jede andere Technologie müssen Smart Home Systeme regelmäßig geupdatet werden, um zum Beispiel
+Sicherheitslücken zu schließen oder neue Funktionalitäten hinzuzufügen. 
+Mit der steigenden Anzahl an Geräten, steigt in einem Smart Home System auch logischerweise die Anzahl der Updates und somit 
+insgesamt die Komplexität von Smart Home Systemen. Das Problem hierbei ist, dass mit steigender Komplexität zum einen automatisch eine höhere
+Fehleranfälligkeit bezüglich Updates einhergeht, zum anderen wird es schwieriger Fehler zu beheben,
+die durch Updates verursacht werden. Updates im Einzelnen besitzen bereits viele Fehlerquellen, wie zum Beispiel Sicherheitslücken 
+oder generell fehlerhafte Implementationen. Dies sind jedoch Aspekte die bereits vom Entwickler weitestgehend vermieden werden.
+Viel Problematischer ist das Zusammspiel verschiedener Geräte und den dazugehörigen Updates. Ein an sich fehlerfreies Update
+kann bei der Installtion in einem Smart Home System, trotz "fehlerfreier" Programmierung große Probleme verursachen. Was ist wenn zum Beispiel 
+ein Update eine Funktion eines Geräts so verändert, dass ein anderes Gerät nicht mehr darauf zugreifen kann. Durch solche kleine Änderungen
+können Abhängigkeiten zwischen Geräten zerstört werden, wodurch ganze Teile eines Smart Home Systems ausfallen
+können. Solch ein Ausfall bedeutet für den Nutzer meist ein großer finanzieller Schaden, da Updates oft nicht 
+rückgängig gemacht werden können und somit Ersatz beschafft werden muss.
+Aus diesen Gründen sind präventive Maßnahmen notwendig,  um die Langlebigkeit von Smart Home Systemen gewährleisten zu können.
+Langlebigkeit wird nämlich von den meisten Usern erwartet, wie man an der Resonanz zum Abschalten der HueBridge V1 von Philips sehen kann 
+[4].
+
+
+\section{Ziel der Arbeit}
+
+
+Eine Steigerung der Lebensqualität ist das Kernziel von Smart Home Systemen. Dies erreicht man zum Beispiel durch die Konfiguration von 
+automatisierten Prozessen. Dadurch können Nutzer nämlich Zeit, Energie und in gewissen Belangen auch Geld sparen. Laut Umfragen geben 57 Prozent der Nutzer von
+Smart Home Systemen in Amerika an jeden Tag durchschnittlich 30 Minuten Zeit einzusparen [4].
+Zusätzlich lassen sich nach Berechnungen des Fraunhofer Instituts für Bauphysik  durch Automatisierungen bis zu ca. 40 Prozent Heizkosten 
+sparen. [5].
+Solche Vorteile zeigen, dass sich die anfangs teure Anschaffung eines Smart Home Systemes auf lange Zeit sogar rentieren kann. Sicherlich 
+ist dies der Idealfall, aber dennoch zeigen diese Zahlen, dass Smart Home Systeme viele Potenziale bieten. Es hängt jedoch von 
+vielen Faktoren ab, ob sich die Anschaffung eines Smart Homes lohnt und objektiv ist dies nicht zu beurteilen. Was jedoch 
+objektiv gesagt werden kann, ist dass in den meisten Fällen Nutzer aufgrund der teuren Anschaffungskosten eines Smart Homes davon ausgehen, dass 
+ihr System viele Jahre erhalten bleibt. Zum Beispiel gibt es Smart Home Systeme, welche beim Bau eines Hauses direkt mit geplant werden,
+sodass man, wie zum Beispiel bei KNX Systemen alle Geräte über ein permanent installiertes Bus System verbinden kann [1].
+Selbstverständlich gibt es auch günstigere Varianten, aber dennoch ist die generelle Erwartungshaltung, dass wenn man ein funktionierendes System hat, dieses
+auch über viele Jahre hinweg weiter funktionieren wird.
+Daher is das Ziel dieser Arbeit die Implementation und Evaluation eines Algrorithmus, welcher 
+Abhängigkeiten zwischen Geräten untersucht und basierend auf diesen Abhängigkeiten Updatekonfigurationen 
+ermittelt, welchen den größten Nutzen für den Nutzer haben.
+Mit diesem Algorithmus wäre es für Smart Home Nutzer möglich Updates bereits vor der Installation zu überprüfen, um so sicherzustellen, 
+dass sie keine Ausfälle verursachen. Die Anwendung dieses Algorithmus sollte für den Nutzer möglichst einfach sein. So könnte man zum 
+Beispiel ein Smartphone nutzen, welches als zentrales Gerät im System dient. Auf diesem zentralen Gerät wäre es dann möglich den 
+Algorithmus laufen zu lassen und sich über das Smartphone dann für die passende Updatekonfiguration zu entscheiden. Smartphones
+bieten sich besonders an, da sie eine intuitive Bedienung für den Nutzer ermöglichen und im Normalfall jeder Nutzer eines Smart Homes
+ein Smartphone besitzt. So umgeht man das Problem, dass es, wie bereits erwähnt, etliche Smart Home Anbieter mit verschiedener
+Software und Geräten gibt. 
+
+
+
+
+ 
+
