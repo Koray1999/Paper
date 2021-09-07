@@ -49,9 +49,9 @@ public class Algorithm extends SmartHome {
         System.out.println(updateConfigurationGraphDates);
 
 
-        //paretoOptimal(updateConfigurationGraphDates);
-        //System.out.println("Pareto Optimal:");
-        //System.out.println(SmartHome.updateConfigurationGraph);
+        paretoOptimal(updateConfigurationGraphDates);
+        System.out.println("Pareto Optimal:");
+        System.out.println(SmartHome.updateConfigurationGraph);
 
         System.out.println("Subnetzwerke");
         createSubnetworks();
@@ -127,8 +127,8 @@ public class Algorithm extends SmartHome {
         for (ArrayList<Integer> dependence : dependencies){
             importantService = dependence.get(1);
             for (List<List<Integer>> configuration : ucg){
-                for (List<Integer> up : configuration){
-                    allServicesOfConfiguration.addAll(up);
+                for (List<Integer> allServicesOfConfig : configuration){
+                    allServicesOfConfiguration.addAll(allServicesOfConfig);
                 }
                 if (!allServicesOfConfiguration.contains(importantService) && !toRemoveConfigs.contains(ucg.indexOf(configuration))){
                     toRemoveConfigs.add(ucg.indexOf(configuration));
@@ -180,7 +180,7 @@ public class Algorithm extends SmartHome {
     }
 
 
-
+    //Erstellt für jede Abhängigkeit ein Subnetzwerk aller beteiligiten Geräte
     public static void createSubnetworks(){
         int dependency;
         ArrayList<Integer> help = new ArrayList<>();
@@ -211,11 +211,18 @@ public class Algorithm extends SmartHome {
         ArrayList<Integer> help = new ArrayList<>();
         int device;
 
+        //Erstelle für jedes Gerät ein Array und fülle es an Stelle 0 mit der Gerätenummer
         for (int i=0; i<nrOfDevices; i++){
             help.add(i);
             flood.add(new ArrayList<>(help));
             help.clear();
         }
+
+        //Gehe durch alle Subnetzwerke durch und such das Minimum raus und füge es in die davor erstellten Arrays ein, wenn Bedingung erfüllt ist.
+        //Flood Fill
+        //[[0, 0], [1, 1], [2, 1], [3, 0], [4, 2, 1]] => 1, 2, und 4 sind in einem Subnetzwerk, und 0,3
+        //Finale Subnetzwerke
+        //[[1, 2, 4], [0, 3]]
 
         for (ArrayList<Integer> b : flood){
             device = b.get(0);
@@ -226,6 +233,7 @@ public class Algorithm extends SmartHome {
             }
         }
 
+        //Anstatt [0] steht [0,0]
         for (ArrayList<Integer> integers : flood) {
             if (integers.size() == 1) {
                 integers.add(integers.get(0));
