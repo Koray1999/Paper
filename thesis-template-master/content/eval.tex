@@ -1,0 +1,255 @@
+\chapter{Design und Implementation}\label{ch:eval}
+
+Dieses Kapitel beschreibt das Design der Implementation des Algorithmus und erklärt Entscheidungen, die im
+Laufe der Implementation getroffen wurden.
+
+\section{Oberflächliches Design}
+
+Zunächst folgt eine grobe Beschreibung aller Schritte des Algorithmus, um so als Leser genauere Entscheidungen im Laufe der Arbeit
+besser nachvollziehen zu können. Der Algorithmus basiert auf dem Paper "An Algorithm for Dependency-Preserving Smart
+Home Updates" (Peter Zdankin et al, 2020) [1]. Ziel ist es
+ist, wie Bereits in Kapitel 1.1 erwähnt, Abhängigkeiten zwischen Geräten zu untersuchen und basierend auf diesen Abhängigkeiten
+Updatekonfigurationen zu ermitteln, welchen den größten Nutzen für den Nutzer haben. 
+\begin{enumerate}
+\item Im ersten Schritt wird eine Übersicht über die aktuelle Updatekonfiguration erstellt. Eine Updatekonfiguration ist eine Zusammenfassung
+aller Geräte und ihrer aktuellen Firmwareversion. Dadurch weiß man, welche Dienstleistungen die Geräte aktuell anbieten. Zusätzlich wird eine Liste
+aller möglichen Updates eines Geräts erstellt. 
+\item Der zweite Schritt ist eine Optimierung bei der versucht wird die Anzahl der interessanten Updates zu verringern. Dazu werden dominierte 
+Updates herausgefiltert und im weiteren Verlauf nicht mehr in Betracht gezogen. Wie genau dies geschieht und welche Updates dominiert sind, wird
+in einem späteren Kapitel erläutert.
+\item Im dritten Schritt wird mit Hilfe der Übersicht über alle Geräte und Updates ein Updatekonfigurationsgraph erstellt. Dieser Graph kann in der
+Theorie als nichtdeterministischrn endlicher Automat realisiert werden, bei dem jeweils ein Zustand eine Updatekonfiguration darstellt. In Abbildung 3.1
+ist ein Teil eines Graphes dreier Geräte mit jeweils zwei Updates zu sehen. Der Start-Zustand zeigt, dass sich Gerät 1 auf Version 0, Gerät 2 auf Version 2 und Gerät 3 auf Version 4
+befindet. Die anderen Zustände bilden die anderen Möglichkeiten auf die man die Geräte updaten kann, wodurch andere Updatekonfigurationen entstehen.
+\footnote{Zdankin et al, 2020, An Algorithm for Dependency-Preserving Smart Home Updates}
+\begin{figure}[h]
+\centering
+\includegraphics{"UCG"}
+\caption{Ausschnitt eines Updatekonfigurationgraphs\( ^1\) }
+\label{fig:Prob1:MEA}
+\end{figure}
+\item Im vierten Schritt werden alle Updatekonfigurationen dahingehen überprüft, ob sie eine Abhängigkeit verletzen. Ist dies der Fall wird diese
+Konfiguration aus dem Updatkonfigurationsgraphen entfernt.
+\item Im fünften Schritt werden alle nicht Pareto-optimalen Konfigurationen herausgefiltert. Pareto-optimal wird im späteren Verlauf definiert.
+\item Im sechsten Schritt werden die Updatekonfigurationen in Subnetzwerke unterteilt. Besteht zum Beispiel keinerlei Abhängigkeit zwischen zwei
+Gruppen von Geräten in einem System, kann man diese Gruppen in Subnetzwerke unterteilen. Für diese Gruppen kann man später unabhängig von
+anderen Gruppen die passende Updatekonfiguration auswählen.
+\item Im letzten Schritt wird jeder Updatekonfiguration ein Rating zugewiesen mit dem Ziel dem Nutzer die Entscheidung für die passende
+Updatekonfiguration zu erleichtern.
+\end{enumerate}
+
+\section{Konkretes Design}
+Basierend auf den Erkenntnissen aus den Kapiteln 1 und 2 können nun Designentscheidungen bezüglich des Algorithmus getroffen
+werden. Ziel ist es den Prototypen eines zukunftsfähigen Tools zu entwickeln, welcher Smart Home Nutzern die Möglichkeit bietet
+Updates vor ihrer Installation zu überprüfen.
+Dabei zielt das Design darauf ab, unnötige architekturspezifische Regularien zu vermeiden, um so möglichst simpel
+gestaltet werden zu können. Nichtsdestotrotz sollte es möglichst einfach sein den Algorithmus in verschiedene Smart Home 
+Architekturen zu integrieren. Um solch eine einfache Integration zu gewährleisten wird die Implementation daher
+in Java sehr modular gehalten. Java bietet sich dafür als objektorientierte Programmiersprache sehr an.
+Des Weiteren wird der Algorithmus nicht auf der Basis eines realen Smart Home Systems aufgebaut. Dies wäre kontraproduktiv,
+da man als Entwickler eher dazu neigen würde eine systemspezifische Implementation zu entwickeln. Anstatt also ein reales
+Smart Home Systems als Grundlage zu nehmen werden im Folgenden andere Möglichkeiten genauer beleuchtet. 
+Eine Möglichkeit ist es eine Liste mit 
+Geräten, aktueller Firmware Version, möglichen Updates und allen dazugehörigen Dienstleistungen zu erstellen. Fügt
+man dieser Liste dann noch Abhängigkeiten hinzu erhält man alle wichtigen Informationen über ein Smart Home System,
+die man benötigt. Vorteil einer solchen Liste ist, dass es sehr einfach wäre sie zu erstellen. Für die spätere Evaluation des 
+Algorithmus wäre solch eine statische Liste jedoch kontraproduktiv, da man den Algorithmus somit immer am gleichen 
+System testen würde. Dadurch könnte man keine validen Aussagen über die Performance des Algorithmus treffen. Aus 
+diesem Grund wird ein Generator genutzt, welcher in Abhängigkeit von verschiedenen Parametern Smart Home Systeme kreiert.
+So können die Anzahl der Geräte, die Anzahl der möglichen 
+Updates pro Gerät, die Anzahl der Dienstleistungen pro Gerät oder auch die Anzahl der Abhängigkeiten zwischen den
+Geräten variiert werden. Dies ermöglich den später implementierten an Algorithmus an verschiedenen Systemen zu 
+evaluieren, um so ein gutes Fazit über Effiziens und Lauftzeit treffen zu können. 
+
+\addsec{Generator}
+Das Design eines solchen Generators lässt sich in Java  sehr leicht gestalten.
+Der Generator erzeugt Geräte, welche in Form von Objekten gespeichert werden. Diese Objekte enthalten Informationen über
+die Version, die Dienstleistungen und die möglichen Updates des Geräts. Zusätzlich wird noch das Alter der Updates für spätere
+Zwecke gespeichert. Idealerweise sollten Updates nach den Spezifikationen des Semantic Versioning definiert werden, da es sich
+dabei um eine weit verbreitete Art der Versionierung handelt und die Implementation sich damit an aktuelle Standards hält.
+Um jedoch im Rahmen dieser Arbeit die Implementierung zu vereinfachen wird auf diesen Standard verzichtet und Updates werden
+im ganzzahligen Bereich von 0 an hochgezählt. Dementsprechend kommt nach dem Update 0 das Update 1 und so weiter.
+\begin{lstlisting}[language=Java]
+public class Device {
+    int version;
+    ArrayList<Integer> services;
+    ArrayList<ArrayList<Integer>> updates;
+    ArrayList<ArrayList<LocalDate>> updateAge;
+}
+\end{lstlisting}
+Wie bereits in Kapitel 2.1.1 erwähnt unterscheiden sich Smart Home Geräte hinsichtlicher ihrer Definition.
+Da ohne klare Definitionen eine Kommunikation zwischen den Geräten nicht
+möglich wäre, wird davon ausgegangen, dass alle Geräte und Dienstleistungen unter einem preskriptiven Standard
+definiert sind. Die Geräte können also untereinander kommunzieren ohne, dass eine Übersetzung nötig ist, wie es unter einem deskriptiven
+Standard der Fall wäre. Rein für die Implementierung des Algrorithmus ist es von Vorteil sich an preskriptiven Standards zu orientieren, 
+da durch die Homogenität der Geräte und die redundanzfreie Architektur die Komplexität des Algorithmus gemindert werden kann.
+
+\addsec{Implementation}
+Nachdem die Geräte erstellt wurden, müssen Abhängigkeiten zwischen diesen Geräten kreiert werden, um 
+ein Smart Home System zu simulieren. Eine Abhängigkeit herrscht zwischen zwei Geräten, wenn ein Gerät Zugriff auf die
+Dienstleistungen eines anderen Geräts benötigt. In Abbildung 3.2 sieht man die Abhängigkeit zwischen einer Heizung und einem Thermostat.
+Die Heizung greift periodisch auf die Dienstleistung des Thermostats zu, indem es das Thermostat nach der aktuellen Temperatur fragt.
+Liegt die Temepratur nun unter einer bestimmten Schwelle würde die Heizung automatisch anspringen und so gewährleisten, dass immer eine
+Mindesttemperatur vorhanden ist.
+
+\begin{figure}[h]
+\centering
+\includegraphics{"Heizung"}
+\caption{Abhängigkeit zwischen zwei Geräten}
+\label{fig:Prob1:MEA}
+\end{figure}
+\newpage
+Die zwei Komponenten Geräte und Abhängigkeiten reichen bereits aus, um ein theoretisches Smart Home System zu bilden, welches für die Anwendung
+des Algorithmus völlig ausreicht. Weitere Voraussetzungen sind, dass innerhalb eines solchen Systems keine Updates automatisch
+installiert werden und es möglich ist, wie in Kapitel 2.1, beschrieben, sich eine Übersicht über alle Geräte und deren Informationen zu
+beschaffen. In realen Systemen müssten diese Informationen in den Metadaten der Geräte
+gespeichert werden, um sie leicht abfragen zu können. Da Metadaten bei den meisten
+Geräten bereits existieren, sollte es für die Entwickler dieser Geräte kein großes Problem darstellen die Metadaten
+um diese Informationen zu ergänzen. Genauere Details, wie zum Beispiel, ob die Kommunikation über eine Cloud läuft sind nicht
+interessant und werden dementsprechend vernachlässigt.
+Nun steht die Basis für die Implementation des Algorithmus. Im ersten Schritt werden die Updates aller Geräte untersucht. 
+Ziel dieses Schrittes ist es, dominierte Updates zu finden und diese zu löschen, um so Rechenpower einzusparen. Updates sind dominiert,
+wenn ein anderes Update exisitiert, welches mindenstens die gleichen Dienstleistungen anbietet und zusätzlich aktueller ist.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics{"Versions"}
+\caption{Gerät mit 5 Versionen/Firmwareaktualisierungen und den dazugehörigen Dienstleistungen\( ^1\)}
+\label{fig:Prob1:MEA}
+\end{center}
+\end{figure}
+
+\FloatBarrier
+\footnote{Zdankin et al, 2020, An Algorithm for Dependency-Preserving Smart Home Updates}
+In Abbildung 3.3 ist ein Gerät mit 5 verschiedenen Versionen zu sehen. In diesem Beispiel ist die Version 1.0 von der Version 1.1 dominiert,
+da Version 1.1 die gleichen Dienstleistungen wie Version 1.0 anbietet und gleichzeitig aktueller ist. Das Gleiche gilt für Version 2.0 und 2.1.
+Für dieses Gerät bleiben also nur noch drei potenzielle Updates, nämlich Version 1.1, 2.1 und 3.0 übrig. Diese Optimierung an allen Geräten
+im System durchzuführen spart eine Menge Rechenzeit.
+Im nächsten Schritt wird nämlich mit Hilfe des kartesischen Produkts aller restlichen, nicht-dominierten Updates ein Updatekonfigurationsgraph
+erstellt. Dieser Graph beinhaltet alle möglichen Updatekonfigurationen, die im System installiert werden könnten. Seien also in einem System 10
+Geräte mit je 2 Updates bedeutet dies, dass es \( 2^(10) = 1024\) verschiedene Updatekonfigurationen geben würde. Bei 3 Updates pro Gerät
+wären es schon \( 3^(10) = 59049\) verschiedene Konfigurationen. Dies macht deutlich, dass jedes im ersten Schritt als dominiert erkanntes
+Update die Laufzeit des Algorithmus erheblich verringern kann. Wie bereits erwähnt kann der Updatekonfigurationsgraph in der Theorie als
+nichtdeterministischer endlicher Automat realisiert werden. In Java wird dieser Automat in Form einer mehrdimensionalen Arrayliste dargestellt.
+Gegeben seien 2 Geräte, zum Beispiel eine Heizung und ein Thermostat
+Die Heizung ist momentan auf Version 0 mit den Services  \{1,2 \} und besitzt keine Updates.
+Das Thermostat ist momentan auf Version 0 mit den Services  \{5,7 \} und kann auf Version 1 mit den Services \{6,8 \} geupdatet werden.
+Der Updatekonfigurationsgraph sieht in Java dann folgendermaßen aus:
+\todo{Noch ne abbildung mit NFA}
+\begin{figure}[!h]
+\begin{center}
+\includegraphics{"UCG Java"}
+\caption{Updatekonfigurationsgraph in Form einer List in Java}
+\label{fig:Prob1:MEA}
+\end{center}
+\end{figure}
+
+Nun wird der Updatekonfigurationsgraph nach ungültigen Konfigurationen durchsucht. Eine Konfiguration ist ungültig, wenn bestimmte
+Dienstleistungen fehlen, die eigentlich aufgrund einer Abhängigkeit nötig wären. Schauen wir uns wieder Abbildung ? an und legen dabei
+fest, dass die Heizung Zugriff auf die Dienstleistung mit der Nummer 7  vom Thermostat benötigt. Dies würde bedeuten, dass die Konfiguration
+\{\{1,2\},\{5,7\} \} gültig und die Konfiguration \{\{1,2\},\{6,8\}\} ungültig ist. Alle ungültigen Konfigurationen können ignoriert werden, wodurch
+die Performance des Algorithmus wieder gesteigert werden kann.
+Nachem bereits dominierte Updates entfernt wurden, werden im nächsten Schritt dominierte Updatekonfigurationen herausgefiltert, um so wieder die
+Performance des Algorithmus zu steigern. Eine Updatekonfiguration ist dominiert, wenn eine weitere Konfiguration existiert, in der alle Updates entweder
+gleich alt oder neuer sind. In Abbildung ? ist der Auschnitt eines Updatekonfiurationsgraphen von drei Geräten mit jeweils 3 Updates zu sehen, wobei die Updates
+nach ihrer Aktualtiät von links nach rechts sortiert sind. Bei Gerät1 also ist das Update \{\{1,3\} aktueller als Update \{\{1,2\} und das Update \{\{1,4\} ist aktueller
+als Update \{\{1,3\}. Die drei Zustände stehen für je eine Updatekonfiguration, die Pfeile sollen andeuten, dass es möglich ist von einer Updatekonfiguration auf
+eine andere upzudaten. Bei genauerer Betrachtung der einzelnen Updatekonfigurationen ist zu erkennen, dass die grüne Konfiguration von der blauen dominiert wird,
+von der roten jedoch nicht. In der blauen Konfiguration besitzen nämlich alle Geräte eine aktuellere Version, in der roten Konfiguration hingegen ist die Version des
+zweiten Geräts eine ältere (\{\{6,7\} ist älter als \{\{6,8\}). Aufmerksamen Lesern wird außerdem auffallen, dass die rote Konfiguration ebenfalls von der blauen dominiert
+wird, denn auch hier bestzen alle Geräte eine aktuellere Version.
+\begin{figure}[!h]
+\begin{center}
+\includegraphics{"Dominierte Konfig"}
+\caption{Dominiere Updatekonfigurationen}
+\label{fig:Prob1:MEA}
+\end{center}
+\end{figure}
+
+Durch das Filtern dominierter Updatekonfiguration wird die Anzahl potenzieller Konfigurationen signifikant verringert, wodurch es für den Nutzer einfacher wird sich
+für eine passende Konfiguration zu entscheiden. Um diese Entscheidung noch zusätzlich zu vereinfachen werden im folgenden Schritt Subnetzwerke erstellt, für die
+unabhängig von anderen Subnetzwerken eine Updatekonfiguration ausgewählt werden kann. Es ist nicht unüblich, dass in einem Smart Home System Gruppen vorhanden
+sind die unabhängig von anderen Gruppen kommunizieren. Mögliche Gruppen zwischen denen keine Kommunikation notwendig ist, können zum Beispiel Fernseher+Soundboxen
+und Backofen+ (Mikrowelle?) sein. Hier bietet es sich logischerweiserweise an die möglichen Updatekonfigurationen unabhängig voneinander zu betrachten, da so für
+den Nutzer ein einfacherer Überblick verschafft werden kann. 
+Ein Subnetzwerk besteht also aus allen Geräten, die durch eine Abhängigkeit
+in Verbindung stehen. Diese Verbindung muss keine direkte sein. Seien zum Beispiel zwei Geräte A und B durch eine Abhängigkeit verbunden und gleichzeitig sei Gerät
+A zusätzlich mit einem Gerät C aufgrund einer Abhängigkeit verbunden, dann sind die Geräte B und C ebenfalls auf indirektem Weg miteinander verbunden, obwohl
+keine direkte Abhängigkeit zwischen ihnen herrscht. Somit sind alle drei Geräte A, B und C Teil eines Subnetzwerkes.
+Der letzte Schritt besteht darin Bewertungen für die übrig gebliebenen Updatekonfigurationen zu erstellen. Zu diesem Zweck werden den einzelnen Dienstleistungen ein
+Wert zugeschrieben. Unter einem preskirptiven Standard wäre es theoretisch für Hersteller möglich Daten zu sammeln und so zu ermitteln, welche Dienstleistungen am 
+häufigsten verwendet werden. Ein Standard könnte dann zusätzlich zur Definition einer Dienstleistung eine Wertung abgeben, je nach dem wie häufig diese Dienstleistung \todo{Plagiat!}
+im Gegensatz zu anderen verwendet wird. Nutzerstatistiken allein reichen nicht aus um eine valide Wertung abzugeben, da Dienstleistungen existieren, welche trotz
+seltener Nutzung extrem wichtig sein können. Zum Beispiel sollte der Alarm eines Feuermelders nicht aufgrund der seltenen Nutzung dieser Dienstleistung, als weniger wichtig
+bewertet werden. Daher bedarf es weiterer Metriken, um eine valide Aussage über den Wert einer Dienstleistungen treffen zu können.
+
+\section{Implementierter Code}
+Die mitgegebene Implementation des beschriebenen Codes besteht aus 4 Klassen:
+\begin{itemize}
+\item Device.java: Klasse zum Erstellen der Geräte als Objekte.
+\item Generator.java: Generator zum erstellen verschiedener Smart Home Systeme
+\item SmartHome.java: Klasse in der das Smart Home System gespeichert wird und an der der Algorithmus ausgeführt wird.
+\item Algorithm.java: Die Implementierung des Algorithmus wie er beschrieben wurde.
+\end{itemize}
+
+Die Klasse Device beinhaltet einen Konstruktor zum Erstellen der Geräte. Der Generator nutzt diesen Konstruktor und erstellt mit der
+Funktion createDevice Geräte. Zwischen den Geräten werden anschließend mit der Funktion createDependencies Abhängigkeiten erzeugt werden.
+Beim erstellen der Geräte und der Abhängigkeiten wird auf auf die Klasse Random aus dem "java.util" package zurückgegriffen, um den Geräten
+zufällige Dienstleistungen und Abhängigkeiten zuzuweisen. Die Anzahl der Geräte und der Abhängigkeiten hängt von manuell ausgewählten
+Parametern in der Klasse SmartHome ab.
+\begin{lstlisting}[language=Java]
+public class SmartHome extends GeneratorFinal{
+... 
+    static int nrOfDevices = 10;
+    static int nrOfUpdatesPerDevice = 3;
+    static int nrOfServicesPerDevice = 10;
+    static int nrOfDependencies = nrOfDevices*2;
+...
+}
+\end{lstlisting}
+Die Klasse Algorithmus beinhaltet den eingentlich Code des beschriebenen Algorithmus.
+Im ersten Schritt werden mit der Methode isDominated alle dominierten Updates entfernt und die übrig gebliebenen Updates in die Funktion
+cartesianProduct als Parameter eingefügt, um so den Updatekonfigurationsgraphen zu erstellen.
+Danach werden mit der Funktion deleteBreakingConfigurations alle ungültigen Konfigurationen aus dem Updatekonfigurationsgraphen entfernt.
+Dafür erstellt die Funktion für jede Konfiguration eine Arrayliste mit allen in dieser Konfiguration vorkommenden Dienstleistungen und überprüft
+dann, ob alle notwendigen Dienstleistungen in der List vorkommen. Wenn dies nicht der Fall ist wird die Konfiguration markiert und anschließend
+aus dem Updatekonfigurationsgraphen entfernt. Als nächstes entfernt die Funktion paretoOptimal allle dominiert Updatekonfigurationen wie in
+Kapitel 3.2.2 beschrieben. Die Funktionen createSubnetworks und floodFill erstelllen anschließend Subnetzwerke basierend auf den Abhängigkeiten
+zwischen den Geräten. Ein Subnetzwerk besteht dann nur noch aus Geräten zwischen denen direkt oder indirekt eine Abhängigkeit besteht.
+Im letzten Schritt erstellt die Funktion rating für jede Dienstleistung eine Wertung. Die Werte der einzelnen Dienstleistungen werden dann pro
+Subnetzwerk summiert, um sie vergleichen zu können.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
