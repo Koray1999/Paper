@@ -19,6 +19,9 @@ public class GeneratorFinal {
         return LocalDate.ofEpochDay(randomDay);
     }
 
+
+
+
     //Methode zum Geräte generieren
     public static Device createDevice(int nrOfUpdatesPerDevice, int nrOfServicesPerDevice, int services){
         Random rand = new Random();
@@ -74,7 +77,7 @@ public class GeneratorFinal {
         return new Device(versionNr, updates.get(0), updates, updatesAge);
     }
 
-
+/*
     //Methode zum Abhängigkeiten generieren Version1 (wird nicht benutzt)
     public static ArrayList<ArrayList<Integer>> createDependency(ArrayList<Device> konfiguration, int nrOfServicesPerDevice){
         ArrayList<ArrayList<Integer>> dependencies = new ArrayList<>();
@@ -103,9 +106,10 @@ public class GeneratorFinal {
         }
         return dependencies;
     }
+*/
 
     //Methode zum Abhängigkeiten generieren Version2
-    public static ArrayList<ArrayList<Integer>> createDependencies2(int nrOfDependencies){
+    public static ArrayList<ArrayList<Integer>> createDependencies(int nrOfDependencies){
         ArrayList<ArrayList<Integer>> dependencies = new ArrayList<>();
         ArrayList<Integer> allServices = new ArrayList<>();
         Random rand = new Random();

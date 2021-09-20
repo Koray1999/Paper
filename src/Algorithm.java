@@ -5,67 +5,75 @@ import java.util.*;
 public class Algorithm extends SmartHome {
     static ArrayList<ArrayList<Integer>> updatesCopy = new ArrayList<>();
     static ArrayList<ArrayList<Integer>> subnetworks = new ArrayList<>();
+    static List<List<ArrayList<Integer>>> allDeviceUpdates = new ArrayList<>();
+    static List<List<ArrayList<LocalDate>>> allDeviceUpdateDates = new ArrayList<>();
+    private static final long MEGABYTE = 1024L * 1024L;
 
     public static void main(String[] args) {
-        long startTime = System.nanoTime();
         SmartHome.main(null);
+        long startTime = System.nanoTime();
 
 
         //Entferne dominierte Updates
-        //System.out.println("Die Updates der Geräte nachdem dominierte Updates entfernt wurden");
+        System.out.println("Die Updates der Geräte nachdem dominierte Updates entfernt wurden:");
         for (Device a : SmartHomeDevices) {
             isDominated(a);
         }
         for (Device device : SmartHomeDevices){
-            //System.out.println(device.getUpdates());
+            System.out.println(device.getUpdates());
         }
+        System.out.println("--------");
 
         //Erstellen einer List aller Updates
-        List<List<ArrayList<Integer>>> allDeviceUpdates = new ArrayList<>();
         for (Device b : SmartHomeDevices){
             allDeviceUpdates.add(b.updates);
         }
+
         //Erstellen einer Liste mit dem Alter aller Updates
-        List<List<ArrayList<LocalDate>>> allDeviceUpdateDates = new ArrayList<>();
         for (Device c : SmartHomeDevices){
             allDeviceUpdateDates.add(c.updateAge);
         }
 
-
-
-        //System.out.println("Erstellen des UpdateConfigurationGraphs");
+        System.out.println("Erstellen des UpdateConfigurationGraphs:");
         SmartHome.updateConfigurationGraph = cartesianProduct(allDeviceUpdates);
         SmartHome.updateConfigurationGraphDates = cartesianProduct(allDeviceUpdateDates);
-        //System.out.println(SmartHome.updateConfigurationGraph.size());
-        //System.out.println(SmartHome.updateConfigurationGraphDates.size());
-        //System.out.println(updateConfigurationGraph);
+        System.out.println(updateConfigurationGraph);
+        System.out.println("--------");
 
-        //System.out.println("Entferne ungültige Updatekonfigurationen");
+        System.out.println("Entferne ungültige Updatekonfigurationen:");
         SmartHome.updateConfigurationGraph = deleteBreakingConfigurations(updateConfigurationGraph);
-        //System.out.println(updateConfigurationGraph);
+        System.out.println(updateConfigurationGraph);
+        System.out.println("--------");
 
-
-        //System.out.println("UpdateKonfigurationsgraph mit Updatealter");
-        //System.out.println(updateConfigurationGraphDates);
+        System.out.println("UpdateKonfigurationsgraph mit Updatealter:");
+        System.out.println(updateConfigurationGraphDates);
+        System.out.println("--------");
 
         paretoOptimal(updateConfigurationGraphDates);
-        //System.out.println("Pareto Optimal:");
-        //System.out.println(SmartHome.updateConfigurationGraph);
+        System.out.println("Pareto Optimal:");
+        System.out.println(SmartHome.updateConfigurationGraph);
+        System.out.println("--------");
 
-        //System.out.println("Subnetzwerke");
-        createSubnetworks();
-        //System.out.println(subnetworks);
-
+        System.out.println("Subnetzwerke:");
+        findSubnetworks();
+        System.out.println(subnetworks);
 
         floodFill(subnetworks);
-
+        System.out.println("--------");
         rating();
-
 
         long endTime   = System.nanoTime();
         long totalTime = endTime - startTime;
-        System.out.println(totalTime);
+        //System.out.println(totalTime);
+
+        Runtime runtime = Runtime.getRuntime();
+        // Run the garbage collector
+        runtime.gc();
+        // Calculate the used memory
+        long memory = runtime.totalMemory() - runtime.freeMemory();
+        //System.out.println(memory);
     }
+
 
     public static void isDominated(Device device) {
         int counter = 0;
@@ -137,7 +145,7 @@ public class Algorithm extends SmartHome {
 
         }
         toRemoveConfigs.sort(Collections.reverseOrder());
-        //System.out.println("Die ungültigen Konfigurationen sind an Stelle:"+toRemoveConfigs);
+        System.out.println("Die ungültigen Konfigurationen sind an Stelle:"+toRemoveConfigs);
 
         for (int test : toRemoveConfigs){
             ucgCopy.remove(test);
@@ -181,7 +189,7 @@ public class Algorithm extends SmartHome {
 
 
     //Erstellt für jede Abhängigkeit ein Subnetzwerk aller beteiligten Geräte
-    public static void createSubnetworks(){
+    public static void findSubnetworks(){
         int dependency;
         ArrayList<Integer> help = new ArrayList<>();
 
@@ -240,7 +248,7 @@ public class Algorithm extends SmartHome {
             }
         }
 
-        //Rekursiv wäre besser
+
         for (int m=0; m<nrOfDevices; m++){
             for (ArrayList<Integer> a : flood){
                 for (int i=0; i<a.size(); i++){
@@ -277,10 +285,10 @@ public class Algorithm extends SmartHome {
         ArrayList<ArrayList<Integer>> finalSubnetworksWithoutDuplicates = new ArrayList<>(
                 new HashSet<>(finalSubnetworks));
 
-        //System.out.println("Flood Fill");
-        //System.out.println(flood);
-        //System.out.println("Finale Subnetzwerke");
-        //System.out.println(finalSubnetworksWithoutDuplicates);
+        System.out.println("Flood Fill:");
+        System.out.println(flood);
+        System.out.println("Finale Subnetzwerke:");
+        System.out.println(finalSubnetworksWithoutDuplicates);
     }
 
 
@@ -315,8 +323,8 @@ public class Algorithm extends SmartHome {
             rating = 0;
         }
 
-        //System.out.println("Die bewerteten Konfigurationen");
-        //System.out.println(allRatings);
+        System.out.println("Die bewerteten Konfigurationen");
+        System.out.println(allRatings);
     }
 
 
