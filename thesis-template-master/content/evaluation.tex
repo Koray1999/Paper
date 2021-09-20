@@ -1,0 +1,255 @@
+\chapter{Evaluation}\label{ch:eval}
+
+Im folgenden Kapitel wird die Implementation hinsichtlich ihrer Performance untersucht, wobei der Algorithmus an unterschiedlichen Systemen
+getestet wird, die mit Hilfe des Generators erstellt werden. 
+
+\section{Theoretische Performance}
+Ein Ziel dieser Evaluation ist es herauszufinden, ob der Algorithmus an aktuellen Smart Home Systemen eine akzeptable Laufzeit vorweist.
+Bereits ohne Messungen vorgenommen zu haben, können bei genauerer Betrachtung des Algorithmus Vermutungen zur Komplexität einzelner Schritte aufgestellt werden.
+Zum Berechnen des Updatekonfigurationsgraphen muss das kartesische Produkt zwischen allen Geräten und den dazugehörigen Updates gebildet werden. 
+Sei ein System mit n Geräten gegeben und pro Gerät existieren s Updates, dann entstehen beim Erstellen des kartesischen Produkts  \( s^n\) mögliche Konfigurationen.
+Zur Vereinfachung wird davon ausgegangen, dass alle Geräte in einem System die gleiche Anzahl an Updates besitzen. Die Komplexität dieses Schrittes wäre also
+vereinfacht O( \( s^n\)). Für ein "reales" Smart Home System, in dem die Geräte unterschiedlich viele Updates besitzen, läge die Komplexität bei
+O($\vert$Gerät1$\vert$*$\vert$Gerät2$\vert$*$\vert$Gerät3$\vert$*...).
+Aufgrund dieses exponentiellen Wachstums ist zu vermuten, dass der Rechenaufwand mit jedem weiteren Gerät und jedem Update stark ansteigt.
+Bei einem Smart Home System mit zehn Geräten und jeweils fünf Updates pro Gerät entstehen ohne weitere Optimierungen bereits \( 5^{(10)} = 9765625\)
+verschiedene Konfigurationen. Sollte der Trend sich fortsetzen, dass die durchschnittliche Anzahl an Geräten pro Smart Home System ansteigt, könnte
+es notwendig werden zusätzliche Optimierungsschritte zu entwickeln, um so den Rechenaufwand des Algorithmus zu verringern.
+Im Idealfall ergeben die Messungen, dass der Rechenaufwand des Algorithmus so gering ist, dass die Laufzeit auch bei großen Systemen
+mit zum Beispiel 30 Geräten vertretbar ist. So kann die Zukunftstauglichkeit des Algorithmus bei immer größer werdenden Smart Home Systemen
+gewährleistet werden.
+Ein weiterer rechenintensiver Schritt ist das Löschen aller ungültigen Updatekonfigurationen. Zu diesem Zweck muss für jede potenzielle Updatekonfiguration
+jeweils eine Liste mit allen angebotenen Dienstleistungen erstellt werden, die dann für weitere Berechnungen des Algorithmus genutzt werden. 
+Für die aus dem vorigen Beispiel \( 5^{(10)} = 9765625\) Konfigurationen müssten
+also 9765625 Listen erstellt werden, die alle einzeln durchgegangen werden, um so ungültige Updatekonfigurationen zu finden. Auch für diesen Teilschritt 
+ist somit eine hoher Rechenaufwand zu erwarten. Während andere
+Berechnungsschritte ebenfalls zur Laufzeit des Algorithmus beitragen, ist davon auszugehen, dass sie um einen großen Faktor weniger
+rechenintensiv sind und dementsprechend weniger ins Gewicht fallen. Die in diesem Abschnitt aufgestellten Hypothesen werden in den folgenden Abschnitten
+überprüft. 
+
+\section{Laufzeitmessungen}
+In diesem Kapitel werden mit Hilfe eines Generators verschiedene Smart Home Systeme kreiert, an denen anschließend die Laufzeit des Algorithmus gemessen wird. 
+Die Laufzeit des Algorithmus wird stark von der Größe der erstellten Smart Home Systemen abhängig sein. Es stehen folgende Parameter zur Verfügung, um
+die Größe eines Smart Home Systems festzulegen: 
+\begin{itemize}
+\item \#Geräte: Legt die Anzahl der Geräte im System fest
+\item \#DienstleistungenProGerät: Legt die Anzahl der Dienstleistungen fest, die ein Gerät anbietet.
+\item \#UpdatesProGerät: Legt die Anzahl der Updates pro Gerät fest (aus Implementationsgründen besitzen alle Geräte die gleiche Anzahl an möglichen Updates)
+\item \#Abhängigkeiten: Legt die Anzahl der Abhängigkeiten im System fest.
+\end{itemize}
+Als erstes soll die Frage beantwortet werden, ob der Algorithmus an Systemen mit aktuell durchschnittlicher Größe anwendbar ist.
+Zu diesem Zweck wird mit Hilfe des Generators ein durchschnittliches Smart Home System generiert.
+Zunächst muss jedoch geklärt werden, wie ein solches Durchschnittssystem aussieht. Laut Statista [19] waren
+in amerikanischen Haushalten im Jahr 2020 durchschnittlich zehn Geräte miteinander verbunden. Die durchschnittliche Anzahl an Updates pro Gerät zu
+ermitteln, ohne empirische Daten vorliegen zu haben, stellt sich als schwierig dar. Um diesen Parameter nicht willkürlich zu würfeln, wird sich an der Anzahl
+der Updates von Apples Iphones orientiert. Seit 2013 erhalten Iphones durchschnittlich zehn Updates pro Jahr[14]. Dabei muss beachtet werden, dass sich die
+Veröffentlichung der
+Upates über das Jahr verteilen und somit kein Gerät von einen auf den anderen Tag zehn neue Updates erhält. Dennoch ist nicht davon auszugehen,
+dass Nutzer täglich überprüfen, ob ein neues Update zur Verfügung steht, so dass sie sich anhäufen. Um täglich manuelle Konfiguration zu vermeiden,
+wird davon ausgegangen, dass ein Nutzer regelmäßig alle drei Monate, also insgesamt vier Mal im Jahr, seine Geräte updatet. So sollte ein Gerät durchschnittlich
+zwischen zwei und drei (10 Updates pro Jahr / 4 Mal updaten pro Jahr = 2.5)  möglichen Updates besitzen. 
+Nun stellt sich noch die Frage wie viele Dienstleistungen
+ein Gerät durchschnittlich anbietet und wie viele Abhängigkeiten zwischen den Geräten herrschen. Auch dies ist ohne empirische Daten schwierig zu beurteilen.
+Bei Smart Home Geräten handelt es sich meist um simple Geräte, die nur wenigen Zwecken dienen. So kann zum Beispiel ein Thermostat nur die Temperatur messen,
+eine Heizung heizen, eine Sicherheitskamera aufnehmen und vielleicht einen Alarm auslösen. Die meisten Geräte bieten also nur wenige Dienstleistungen. Diese
+Annahme beruht jedoch auf eigenen Erfahrungen und ist somit nicht wissenschaftlich belegt. Daher wird für das Erstellen der Geräte davon ausgegangen, dass sie durchschnittlich
+fünf Dienstleistungen anbieten, um so die Größe eines Systems nicht zu unterschätzen. Aufgrund der geringen Anzahl an Dienstleistungen pro Gerät wird davon ausgegangen,
+dass die Anzahl der Abhängigkeiten, die ein Gerät besitzt, ebenfalls gering ist. Viele Geräte funktionieren auch vollkommen selbstständig und besitzen keinerlei
+Abhängigkeit. Für die Anzahl der Abhängigkeiten wird daher festgelegt, dass ein Gerät durchschnittlich zwei Abhängigkeiten besitzt. Die Einschätzung basiert ebenfalls auf subjektiven
+Erfahrungen, weswegen für zukünftige Arbeiten empirischer Daten bedarf.
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=14cm,height=9cm]{"images/Durchschnitt"}
+\caption{Laufzeitmessungen an einem durchschnittlichen System}
+\label{fig:Prob1:MEA}
+\end{center}
+\end{figure}
+\FloatBarrier
+Anhand der Abbildung 4.1 ist zu erkennen, dass die Berechnungen im Bereich von Millisekunden durchlaufen sind. Die durchschnittliche Laufzeit des Algorithmus liegt
+bei 79 Millisekunden mit Ausreißern bei 350 und 21 Millisekunden. In einem Buch zum Thema Usability Engineering [18] hat Jakob Nielsen verschiedene Grenzwerte zur
+Reaktionszeit von Webseiten festgelegt. Diese Werte können als Indikator genutzt werden, um die Laufzeit des Algorithmus zu beurteilen. Sie können 
+nicht eins zu eins auf die Laufzeit des Algorithmus übertragen werden, da der Algorithmus in einem anderen Kontext als eine Webseite zu betrachten ist.
+Während Webseiten täglich von Nutzern besucht werden, wird der Algorithmus nur einige Male im Jahr verwendet werden. Dementsprechend ist davon
+auszugehen, dass die Laufzeiten für Nutzer zumutbar sind, solange sie unterhalb den folgenden Grenzen liegen:
+\begin{itemize}
+\item 0.1 Sekunden: Prozesse, die unter 0.1 Sekunden reagieren, nimmt ein Nutzer ohne Verzögerung wahr.
+\item 1.0 Sekunden: Der Nutzer nimmt eine kurze Verzögerung wahr, die meist als nicht störend interpretiert wird.
+\item 10 Sekunden: Für bis zu 10 Sekunden wartet ein Nutzer durchschnittlich auf eine Reaktion. Verzögert sich eine Reaktion um mehr als 10 Sekunden wechselt ein Nutzer
+zu anderen Dingen bis eine Reaktion erscheint.
+\end{itemize}
+
+Des Weiteren fällt auf, dass der Algorithmus bei gleichbleibenden Parametern starke Schwankungen aufweist. Dies liegt daran, dass trotz
+gleichbleibender Parameter die Komplexität eines Smart Homes variieren kann. Überträgt man dies auf die reale Welt, erscheint es logisch, dass
+zwei Systeme trotz gleicher Größe nicht automatisch gleich komplex sind. In einem System können viele
+Updates dominiert sein, während dies im anderen System nicht der Fall ist. Dies führt dazu, dass die Optimierungen an beiden Systemen unterschiedlich erfolgreich
+ausfallen, so dass in einem System mehr Berechnungen durchgeführt werden müssen.
+
+\newpage
+\subsection{Laufzeit der Teilschritte}
+In diesem Abschnitt werden die Laufzeiten der einzelnen Teilschritte untersucht, um so Problemstellen in der Implementation ausfindig zu machen. Abbildung 4.2 zeigt die
+Laufzeit der einzelnen Schritte, die in Kapitel 3 beschrieben wurden. Die Messungen wurden wie im vorigen Kapitel an einem durchschnittlichen Smart Home System durchgeführt.
+Die genauen Parameter sind der Abbildung zu entnehmen.
+Es ist zu erkennen, dass der Schritt "deleteBreakingConigurations" mit 41,3 Millisekunden circa 65 Prozent der Laufzeit ausmacht, während die Laufzeit der anderen Schritte summiert
+nur 34 Prozent der gesamten Laufzeit ausmachen. Die Annahme aus Abschnitt 4.1, dass das Löschen der ungültigen Konfigurationen sehr rechenintensiv im Vergleich zu den
+anderen Schritten ist, ist somit richtig. Sollte in zukünftigen Arbeiten versucht werden den Algorithmus zu optimieren, dann sollte diesem Schritt besondere Aufmerksamkeit geschenkt
+werden.  Das Erstellen des Updatekonfigurationsgraphen (cartesianProduct) nimmt im Vergleich zu den anderen Schritten nicht so viel Zeit in Anspruch wie vermutet, dennoch
+fallen die anderen Teilschritte insgesamt, wie erwartet nicht stark ins Gewicht.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=14cm,height=10cm]{"images/Teilschritte"}
+\caption{Laufzeit einzelner Teilschritte}
+\label{fig:Prob1:MEA}
+\end{center}
+\end{figure}
+
+\subsection{Einfluss einzelner Parameter}
+Im weiteren Verlauf werden die Parameter des Smart Home Generators verändert und die damit verbundenen Laufzeitschwankungen gemessen. So kann ermittelt werden,
+welchen Einfluss die einzelnen Parameter auf die Laufzeit haben. Der erste Parameter, der unabhängig von den anderen untersucht wird,
+ist die Anzahl der Geräte in einem Smart Home System. 
+Dafür wird die Entwicklung der Laufzeit bei steigender Anzahl an Geräten im System gemessen. Um den Einfluss der anderen Parameter möglichst gering zu halten,
+sind sie, wie in Abbildung 4.3 zu sehen, eingestellt.
+In der Abbildung ist zu erkennen, dass mit steigender Anzahl an Geräten die Laufzeit des
+Algorithmus ansteigt. Im Bereich von 1-8 Geräten hat das Hinzufügen eines Geräts eine durchschnittliche Laufzeitsteigerung von circa 15 Prozent zur Folge. Ab 9-13 Geräten
+ergeben die Messungen beim Hinzufügen eines Geräts eine Laufzeitsteigerung von circa 30 Prozent. Ab 14 Geräten erhöht sich die Laufzeit mit jedem hinzugefügten
+Gerät um jeweils circa 60 Prozent. Die Ergebnisse zeigen, dass das Hinzufügen eines Geräts bei kleinen Systemen (unter 13 Geräten) geringe Laufzeiterhöhungen zur Folge haben.
+Je größer ein System ist, desto stärker erhöht sich die sich die Laufzeit mit jedem zusätzlich hinzugefügtem Gerät. Die Messungen wurden für bis zu 20 Geräte in einem
+System durchgeführt. Aufgrund der Kurve des Graphen ist zu erwarten, dass der Graph bei noch größeren Systemen immer stärker steigen würde.
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=14cm,height=8.5cm]{"images/Steigende Geräteanzahl"}
+\caption{Laufzeit beim Erhöhen der Anzahl der Geräte im System}
+\label{fig:Prob1:MEA}
+\end{center}
+\end{figure}
+
+\FloatBarrier
+In Abbildung 4.3 handelt es sich um theoretische Ergebnisse, um den unabhängigen Einfluss des Steigerns eines einzelnen Parameters zu messen. In einem realistischem Smart Home System
+ist davon auszugehen, dass mit steigender Anzahl an Geräten auch die Anzahl
+der Abhängigkeiten im System steigt. Außerdem liegt die Anzahl der Updates pro Gerät in einem realistischem Smart Home System, wie bereits erwähnt zwischen 2 und 3. Um also
+praxisnähere Ergebnisse zu ermitteln, zeigen die Messungen in Abbildung 4.4 die Laufzeit des Algorithmus an realistischeren Systemen.
+Es ist zu erkennen, dass das Erhöhen der Anzahl der Geräte einen ähnlichen Effekt hat wie zuvor. Der Unterschied besteht darin, dass
+eine starke Laufzeitsteigerung bereits bei weniger Geräten beginnt und noch stärker ansteigt. Aufgrund des starken Anstiegs war es nicht möglich die Anzahl der Geräte wie in Abbildung
+4.3 auf bis zu 20 zu steigern. 
+Die durchschnittliche Laufzeiterhöhung pro hinzugefügtem liegt bei 1-6 Geräten bei circa 30 Prozent (doppelt so viel wie in den Messungen in Abbildung 4.3).
+Ab 7-13 Geräten liegt die Steigerung bei circa 80 Prozent und bei der Erhöhung von 13 auf 14
+Geräten hat sich die Laufzeit um 440 Prozent erhöht. Somit kann man zusammenfassen, dass die Laufzeit des Algorithmus bei realistischen Systemen sehr stark ansteigt, wenn
+die Anzahl der Geräte in einem System steigt.   
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=14cm,height=9cm]{"images/Steigende Geräteanzahl real"}
+\caption{Laufzeit beim Erhöhen der Anzahl der Geräte in einem realistischem System}
+\label{fig:Prob1:MEA}
+\end{center}
+\end{figure}
+
+\newpage
+Nun folgen weitere Messungen an Systemen, bei denen die Anzahl der Updates pro Gerät erhöht werden. Es wird wieder versucht den Einfluss der anderen Parameter auf
+die Laufzeit möglichst gering zu halten. Die genauen Parametereinstellungen sind der Abbildung 4.5 zu entnehmen.
+Die Abbildung zeigt, dass bei der Verdopplung der Updates pro Gerät die Laufzeit um durchschnittlich 60 Prozent steigt. Runtergerechnet bedeutet dies, dass jedes Update
+die Laufzeit um durchschnittlich 6 Prozent erhöht. Es handelt sich um ein exponentielles Wachstum, was im Vergleich zu Abbildung 4.3 jedoch langsamer ansteigt. Die Messungen
+zeigen insgesamt, dass das Verdoppeln der Geräte einen stärkeren Einfluss auf die Laufzeit hat, als das Verdoppeln der Updates im System.
+Sollte die Komplexität für den Teilschritt "cartesianProduct",wie in Abschnitt 4.1 beschrieben, bei O( \( s^n\)) liegen, könnte dies ein Grund für den stärkeren
+Einfluss der Geräte auf die Laufzeit sein.
+Beim Bilden des kartesischen Produkts steht die Anzahl der Geräte im Exponent und die Anzahl der Updates in der Basis. Dementsprechend lässt das Hinzufügen eines
+Geräts den Updatekonfigurationsgraphen schneller wachsen, als das Hinzufügen eines Updates. Dies klingt zunächst widersprüchlich zu der Erkenntnis aus Abbildung 4.2, dass
+der Teilschritt "cartesianPrdouct" nur wenig Laufzeit benötigt. Die Schritte "cartesianProduct" und "deleteBreakingConfigurations" müssen jedoch zusammenhängend betrachtet
+werden, da das Ergebnis des kartesischen Produkt als Eingabe für die Funktion "deleteBreakingConfigurations" genutzt wird.
+\FloatBarrier
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=14cm,height=9cm]{"images/Steigende Updatezahl"}
+\caption{Laufzeit beim Erhöhen der Anzahl der Updates pro Gerät im System}
+\label{fig:Prob1:MEA}
+\end{center}
+\end{figure}
+\newpage
+In Abbildung 4.5 wurden die Messungen wieder an einem unrealistischen System vorge-
+nommen, um den Einfluss des Steigerns eines einzelnen Parameters zu messen. 
+Also werden im Folgenden Messungen an einem realen System durchgeführt. Aufgrund der Implementation des Generators besitzen alle Geräte die gleiche Anzahl
+an Updates. Dementsprechend ist es nicht möglich einem System mit zehn Geräten ein einzelnes Update hinzuzufügen. Für zukünftige Messungen wäre es von Vorteil
+den Generator entsprechend zu ändern, so dass dies möglich ist. Erhöht man also den Parameter \#UpdatesProGerät in einem System mit zehn Geräten um eins, bedeutet
+dies, dass dem System insgesamt zehn Updates hinzugefügt werden. Bei einem System mit 5 Geräten sind es dementsprechend fünf Updates.
+Dementsprechend ist Abbildung 4.6 zu sehen, dass die Laufzeit an einem System mit 10 Geräten schneller ansteigt, als in
+einem System mit 5 Geräten. Nichtsdestotrotz ist bei beiden Systemen ein exponentielles Wachstum zu erkennen, welches nicht wie in Abbildung 4.5 gleichmäßig steigt.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=14cm,height=9cm]{"images/Steigende Updatezahl real"}
+\caption{Laufzeit beim Erhöhen der Anzahl der Updates pro Gerät in einem realistischen System}
+\label{fig:Prob1:MEA}
+\end{center}
+\end{figure}
+
+\newpage
+\subsection{Einfluss der Parameter im Zusammenspiel}
+Als Letztes wird gemessen, welchen Einfluss die beiden Parameter \#Geräte und \#UpdateProGerät auf die Laufzeit haben, wenn man sie gleichzeitig erhöht.
+Basierend auf den vorigen Ergebnissen steigt die Laufzeit des Algorithmus, wie zu erwarten mit dem Erhöhen der Parameter an. 
+In Abbildung 4.7 zeigen die Messungen, dass die Laufzeit ab 7 Geräten mit je 7 Updates pro Gerät extrem ansteigt. Der Algorithmus weist als auch hier
+ein sehr starkes Wachstum ab einer bestimmten Grenze auf.
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=14cm,height=9cm]{"images/Beides"}
+\caption{Laufzeit beim Erhöhen der Anzahl der Geräte und der Anzahl der Updates pro Gerät in einem realistischem System}
+\label{fig:Prob1:MEA}
+\end{center}
+\end{figure}
+
+\newpage
+\section{Speicherbedarf}
+In Abbildung 4.8 ist der Speicherbedarf des Algorithmus an einem durchschnittlichen System zu sehen. Es ist zu erkennen,
+dass der Speicherbedarf im Gegensatz zur Laufzeit keinen starken Schwankungen unterliegt. Er steigt im Vergleich zur
+Laufzeit beim Erhöhen der Geräte und dem Erhöhen der Updates pro Gerät nur langsam an. Durchschnittlich liegt er
+bei 1.29 MB. Des Weiteren ist in den Abbildungen 4.3 bis 4.7 zu erkennen, dass der Speicherbedarf ein lineares Wachstum
+aufweist. Für die Anwendung des Algorithmus bedeutet dies, dass es kein Problem sein sollte die Berechnungen auf einem Smartphone
+durchzuführen. Auch bei steigender Größe der Smart Home Systeme sollte der Algorithmus, was den Speicherbedarf angeht, zukunftstauglich
+sein.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=14cm,height=6cm]{"images/Speicherverbrauch"}
+\caption{Speicherbedarfmessungen an einem durchschnittlichen System}
+\label{fig:Prob1:MEA}
+\end{center}
+\end{figure}
+
+\section{PC-Spezifikationen}
+Die Laufzeit des Algorithmus ist von vielen Faktoren abhängig. Um die Ergebnisse besser beurteilen zu können, folgt eine Liste der verwendeten
+PC Konfiguration:
+\begin{itemize}
+\item Betriebssystem: Windows 10 Home 
+\item CPU: AMD Ryzen 3 3200g (4 Kerne, Taktfrequenz 3.6 GHz) 
+\item RAM: 16 GB DDR4 3000 MHz
+\item Speichermedium: SANDISK Ultra 3D NVMe SSD (Lesen: 2400 MB/s, Schreiben: 1750 MB/s)
+\end{itemize}
+
+Moderne Smartphone besitzen leistungsstarke Prozessoren. Das meist verkaufte Smartphone im Jahr 2021 ist das Apple Iphone 12 mit einem
+A14 Apple Bionic Prozessor und 4 GB LPDDR4X (4266 MHz) RAM [15]. Der Prozessor besitzt 2 Hochleistungskerne mit Taktfrequenzen bis zu 3 GHz und
+4 weiteren Kernen mit Taktfrequenzen bis zu 1,82 GHz [16]. Die Komponenten des Iphone 12 sind nicht wesentlich leistungsschwacher als die des
+verwendeten Computers. Der Algorithmus sollte dementsprechend auf einem modernen Smartphone ebenfalls in angemessener Zeit durchlaufen sein.
+Weitere Verbesserungen der Implementation, zum Beispiel Nebenläufigkeit, würden die Performance zusätzlich steigern, so dass der Algorithmus auch
+auf leistungsschwächeren Smartphones funktionieren sollte. 
+
+
+
+\section{Ergebnisse}
+Die Evaluationsschritte zeigen, dass der Algorithmus zum aktuellen Stand der Smart Home Systeme für viele Nutzer ein wichtiges Produkt sein könnte.
+Nutzern wäre es möglich mit einer simplen Anwendung auf dem Handy die Updates eines Smart Home System zu steuern.
+Die Ergebnisse sind jedoch mit Vorsicht zu betrachten, da die Einstellungen der Parameter auf vielen Annahmen beruhen, für die es noch
+keine ausreichende Forschungsgrundlage gibt. Für zukünftige Messungen wäre es von Vorteil empirische Daten über Smart Home Systeme
+zu sammeln, um so mit Hilfe des Generators möglichst realitätsnahe Systeme zu kreieren.
+Die Evaluation hat auch gezeigt, dass die Zukunftstauglichkeit des Algorithmus aufgrund der schnell steigenden Laufzeit nicht garantiert ist.
+Weitere Optimierungen werden vermutlich notwendig sein, um vertretbare Laufzeiten bei immer größer werdenden Smart Home Systemen zu erreichen.
+Durch die modulare Implementierung sollte es möglich sein Änderungen am Algorithmus vorzunehmen und ihn so zu verbessern.
+Ein potenzieller Ansatz um den Algorithmus zu verbessern, ist die Reihenfolge des Algorithmus zu ändern. So könnte bereits im ersten Schritt nach Subnetzwerken
+gesucht werden, auf denen die restlichen Schritte des Algorithmus unabhängig voneinander ausgeführt werden . Dadurch müsste der Algorithmus insgesamt öfter
+ausgeführt werden, wodurch der Anschein entsteht, dass die Laufzeit sich insgesamt erhöhen würde. Andererseits könnte es sein, dass die Laufzeit sich verringert,
+da durch das Erstellen der Subnetzwerke, die Eingabe für den Algorithmus pro Subnetzwerk kleiner ist, als das gesamte Netzwerk. Die Laufzeitmessungen haben
+gezeigt, dass große Eingaben (also große Smart Home Systeme) die Laufzeit des Algorithmus, aufgrund des exponentiellen Anstiegs stark erhöhen. Es besteht also
+die Möglichkeit, dass das Ausführen des Algorithmus auf vielen kleinen Systemen effizienter ist, als auf einem großen System.
+
+
+
+
+
+

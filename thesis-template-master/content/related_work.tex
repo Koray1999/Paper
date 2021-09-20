@@ -1,0 +1,229 @@
+\chapter{Related Work}\label{ch:related_work}
+In diesem Kapitel werden die grundlegenden Komponenten eines Smart Home Systems vorgestellt, um dem
+Leser ein besseres Verständnis zu ermöglichen.
+Anschließend wird das Thema Langlebigkeit im Bereich Software Engineering vorgestellt und infolgedessen werden
+Smart Home Systeme unter dem Aspekt der Langlebigkeit genauer untersucht. Zu diesem Zweck wird das Thema Dependency Management aufgegriffen, wobei bereits 
+bestehende Ansätze/Lösungen diesbezüglich genauer betrachtet werden. Zusätzlich wird der aktuelle Stand des Dependency Managements im 
+Bereich Smart Home untersucht.
+
+
+\section{Smart Homes}
+Grundlegend sind Smart Home Systeme nichts anderes als Netzwerke von Geräten, die untereinander kommunizieren.
+Die vernetzten Geräte ermöglichen automatisierte Prozesse und können so Aufgaben im Haushalt übernehmen.
+Durch die hohe Anzahl der Anbieter für Smart Home Systeme existieren viele Architekturen, die teilweise sehr unterschiedlich
+aufgebaut sind. Im Rahmen dieser Arbeit ist es nicht notwendig, die verschiedenen Smart Home Architekturen genauer zu beleuchten,
+dennoch schadet ein grober Überblick nicht. Die
+verschiedenen Architekturen können darin unterschieden werden, ob sie eine Verknüpfung zu einer Cloud besitzen.
+"Unter einer Cloud oder Cloud Computing versteht man die internetbasierte Bereitstellung von Speicherplatz, Rechenleistung oder
+Anwendungssoftware als Dienstleistung" [17].
+Cloud gebundene Architekturen bieten dem Nutzer meist eine einfachere Installation und Wartung, indem zum 
+Beispiel Updates automatisch installiert werden. Gleichzeitig bringen sie potenzielle Gefahren mit sich, da die
+Abhängigkeit zu einer Cloud Smart Home Systeme verwundbar machen kann. Wird ein externer Service eingestellt, kann dies bei
+Cloud-gebundenen Architekturen zu Ausfällen im System führen [7].
+Des Weiteren sind Geräte, die mit einer Cloud verbunden sind anfälliger gegenüber Angriffen von Außenstehenden, die sich 
+Zugriff auf das System beschaffen wollen.
+Nicht Cloud-gebundene Architekturen haben diese Nachteile nicht. Es ist jedoch meist schwieriger ein solches Smart Home System aufzubauen, 
+da, wie im Falle von OpenHab [8], durch das Wegfallen der Cloud viel manuelle Konfiguration benötigt wird. Zusätzlich bieten nicht Cloud-gebundene Architekturen
+mehr Sicherheit, da sie keine starken Abhängigkeiten zu anderen Dienstleistern benötigen.
+Die verschiedenen Architekturen könnten noch weiter spezifiziert werden, indem einzelne Komponenten genauer beleuchtet und 
+verschiedene Smart Home Anbieter miteinander verglichen werden, jedoch ist dies, wie bereits erwähnt, im Rahmen dieser 
+Arbeit nicht notwendig. Der zu entwickelnde Algorithmus soll später theoretisch Plattform- und architekturunabhängig anwendbar sein.
+Zu diesem Zweck werden im Folgenden einige Aspekte bezüglich Smart Homes definiert und vorausgesetzt. 
+Zdankin beschreibt in seiner Arbeit Smart Home Systeme als:
+
+\par
+\begingroup
+\leftskip=1cm % Parameter anpassen
+\noindent %ab hier der Text, der eingerückt werden soll
+\textit{"A smart home has a set of devices that are connected through
+a platform. Each device has a certain software version and
+a set of available updates. Each software version has a set
+of available predefined services. Devices can use services of
+other devices which creates dependencies. An update configuration
+is one of the finite states of the nondeterministic
+finite automaton (NFA) that can be constructed by using the
+configurations as states and connecting them using individual
+updates as transitions." }(Zdankin et al., 2020, Requirements and Mechanisms for Smart Home Updates [8]).
+\par
+\endgroup
+Um Missverständnisse zu vermeiden, folgen nun zusätzliche Begriffserklärungen für die Komponenten, die in
+Abbildung 2.1 zu sehen sind:
+\begin{itemize}
+\item Device (Gerät): Geräte sind die Komponenten, die die eigentliche Funktionalität anbieten. Sie besitzen eine aktuelle Firmware
+Version mit entsprechenden Dienstleistungen(Services) und potenziellen Updates. Zusätzlich können sie Abhängigkeiten zu anderen Geräten haben, indem sie auf deren
+Dienstleistungen zugreifen.
+\item Firmware Version: Die Firmware Version gibt an, auf welcher Version ein Gerät sich befindet und gibt somit an welche Dienstleistungen ein Gerät anbietet.
+\item Service (Dienstleistungen): Eine Dienstleistung ist eine Funktionalität, die ein Gerät anbietet. Zum Beispiel bietet ein Thermostat
+die Dienstleistung "Temperatur messen" an.
+\item Update: Eine Aktualisierung der Firmware eines Geräts. Durch ein Update können sich angebotenen Dienstleistungen eines Geräts ändern.
+\item Platform: Die Komponente, die alle Geräte miteinander vernetzt.
+\item Dependency (Abhängigkeiten): Eine Abhängigkeit zwischen zwei Geräten besteht, wenn ein Gerät Zugriff auf die Dienstleistungen eines
+anderen Geräts benötigt.
+\end{itemize}
+
+\begin{figure}[h]
+\hspace*{-0,5cm}                                                           
+\includegraphics[width=16cm,height=10cm]{"images/System Model"}
+  \caption{Grundlegende Komponenten eines Smart Home Systems}
+  \label{fig:Prob1:MEA}
+\end{figure}
+
+
+\newpage
+\subsection{Prescriptive vs Descriptive Standards}
+Für die Kommunikation der Geräte untereinander existieren viele Kommunikationsprotokolle wie zum Beispiel Bluetooth,
+Wi-Fi oder auch XMPP. Diese sind bereits im großen Umfang in Verwendung, weshalb es keiner weiteren
+Untersuchung dieser Protokolle im Rahmen dieser Arbeit bedarf.
+Die Kommunikation über ein standardisiertes Kommunikationsprotokoll allein reicht nicht aus, so dass sich Geräte in einem System untereinander
+verstehen können.
+Dafür ist ein Standard notwendig, welcher die Funktionen/Dienstleistungen der Geräte beschreibt.
+Die zwei führenden Ansätze im Bereich IoT/Smart Homes sind deskriptive und präskriptive Standards.
+Zdankin beschreibt die beiden Standards in seiner Arbeit folgendermaßen:
+
+\textit{"A standard for service definitions that only regulates how a device can describe itself is
+a descriptive standard, because it allows vendors to describe their devices in their own
+terms. A recently finalized descriptive standard is the Web Of Things [Ka20; Ko20]. If
+devices need to communicate across different descriptive standards, a translation must be
+considered. However, McCool et al. have stated security concerns about purely descriptive
+approaches, such as scanning for door locks with known physical weaknesses.}
+
+\textit{
+A prescriptive standard does not only regulate the how but also the what of self-description.
+These standards prescribe how devices and services should be defined and vendors can use
+these terms for unambiguity. By using the same terms to define services, translation is not
+required anymore. A prescriptive standard defines all possible devices and all their services
+they could implement. However, a device can implement a subset of these services only.
+This restriction has benefits as well because it ensures compatibility across device vendors.
+Widely used examples are the smart home standards of Amazon, Apple, and Samsung6."}
+(Zdankin et al., 2020, Requirements and Mechanisms for Smart Home Updates [8]).
+
+Das Nutzen eines präskriptiven Standards bietet den Vorteil, dass bei der Implementierung des Algorithmus Kommunikationsaspekte
+zwischen den Geräten ignoriert werden können, da alle Geräte unter dem selben Standard definiert sind. Dies vereinfacht die Implementierung. 
+
+
+\subsection{Update Planing}
+Oft werden Smart Home Geräte automatisch über eine aktive Internetverbindung geupdatet oder auch durch andere
+Geräte wie zum Beispiel einem Hub . Dies bietet dem Nutzer mehr Komfort, da kein manueller Aufwand für Updates ersteht.
+Diese Art des Updatens wird "Remote Updating" genannt und sollte vermieden werden, da dadurch die Kontrolle über das System an
+externe Dienstleister gegeben wird, wodurch Sicherheitslücken entstehen können [8].
+Außerdem ist es für einen externen Dienstleister, der das Updaten der Geräte übernimmt, notwendig Informationen über das System zu sammeln,
+um so ideale Updatekonfigurationen zu finden. Persönliche Informationen sollten nicht leichtsinnig preisgegeben werden, da dies viele
+potenzielle Gefahren birgt. So kann zum Beispiel die Information, wann eine automatisierte Heizung anfängt zu heizen für Kriminellen ausreichen, um
+zu wissen, wann jemand zu Hause ist oder wann ein Haus leer steht. 
+Idealerweise sollten Nutzer daher das Updaten lokal selbst übernehmen. Dies bedeutet mehr manuelle Konfiguration
+und wäre für einen Nutzer ohne weitere Informationen schwer umsetzbar.
+Es wäre also von Vorteil, wenn es für den Nutzer
+eine Übersicht aller möglichen Updates geben würde, in der er sich dann für passende Updates entscheiden kann.
+Um diese Informationen übersichtlich darzustellen bieten sich Smartphones als zentrales Gerät im System an.
+Dieses zentrale Gerät benötige dann
+eine Möglichkeit, die Informationen über die Services und Updates aller Geräte in einem System leicht abfragen zu können.
+Eine solche Abfrage müsste in der Realität für jedes Gerät individuell angepasst werden. Dies ist jedoch nicht umsetzbar,
+weswegen es nötig ist, einen einheitlichen Weg zu finden.
+Zdankin schlägt vor, die Metadaten der Geräte zu diesem Zweck zu nutzen. Geräte besitzen üblicherweise Metadaten, welche Informationen über 
+Software Version, Speicherbedarf usw. enthalten. Diesen Metadaten könnte man zusätzlich Informationen über Dienstleistungen und Updates 
+hinzufügen, sodass man einen schnellen Überblick über alle Geräte innerhalb eines Netzwerks erhalten kann
+(Zdankin et al., 2020, Requirements and Mechanisms for Smart Home Updates [8]). 
+
+\section{Langlebigkeit}
+Im Bereich Software Engineering ist Langlebigkeit ein bekanntes Problem. Es wurden bereits Untersuchungen über die durchschnittliche 
+Lebensdauer von Software durchgeführt mit dem Ergebnis, dass kleine Projekte im Bereich von unter 100.000 Zeilen Code eine Lebensdauer von circa 
+6-8 Jahren haben. Dabei ist zu beobachten, dass mit steigender Größe eines Projekts die erwartete Lebensdauer im Durchschnitt
+ebenfalls steigt [9]. Dies hängt vermutlich mit den hohen Kosten zusammen, die für größere Projekte aufkommen, weswegen das Interesse besteht
+möglichst lange einen Nutzen von der Software zu haben. Gründe für das Altern von Software sind vielseitig. So kann zum Beispiel 
+die Wartung alter Software zu teuer werden, so dass die Kosten für neue Software rentabler sind, als die ständige Wartung.
+Andere Gründe können eingestellte Entwicklungsumgebungen oder Sicherheitslücken
+sein. Die German Research Foundation hat ein Projekt namens "Design for Future" ins Leben gerufen, um das Problem der Langlebigkeit
+von Software zu untersuchen. Das Projekt beschreibt sein Ziel darin fundamentale neue Ansätze im Bereich langlebiger Software zu finden, um Probleme mit Legacy-Software
+oder der Adaption von Software auf neue Plattformen zu lösen und eine kontinuierliche Weiterentwicklung von Software Systemen gewährleisten 
+zu können [10].
+Im Bereich Smart Home existieren solche Programme nicht. Das Problem der Langlebigkeit wird in diesem Kontext unterschätzt oder einfach ignoriert.
+Aufgrund der Komplexität der Systeme besitzen sie viele Schwachstellen die zu einem frühzeitigen Ausfall des Systems führen können. Dazu gehören:
+
+\begin{figure}[h]
+\centering
+\includegraphics{"images/Threats"}
+\caption{Gefahren für die Langlebigkeit von Smart Home Systemen (Zdankin et al, 2020, An Algorithm for Dependency-Preserving Smart Home Updates [1]) }
+\label{fig:Prob1:MEA}
+\end{figure}
+
+In dieser Arbeit wird hauptsächlich die Gefahr der "Breaking Updates" genauer untersucht.
+"Breaking Updates" können durch das Aktualisieren von Geräten Abhängigkeiten im System zerstören und Schäden verursachen gegen die Nutzer sich nicht schützen
+können. Nutzer könnten generell aufhören Updates zu installieren, wodurch sie jedoch auf neue Funktionalitäten verzichten müssten, während gleichzeitig das Risiko steigt,
+dass Sicherheitslücken im System aufkommen. Updates also grundlegend zu ignorieren ist nicht empfehlenswert, weswegen es einer Möglichkeit bedarf
+Updates vor ihrer Installation zu überprüfen.
+Vergleicht man dies mit der Gefahr, dass ein externer Service, der für das Smart Home System notwendig ist, offline gehen kann (Discontinued External Service), besteht
+der Unterschied darin, dass Käufer eines Cloud-gebundenen Smart Home Systems diese Gefahr aktiv und willentlich eingehen.
+Die ist bei "Breaking Updates" nicht der Fall.
+Außerdem lässt sich das Ausmaß der Gefahr eines "discontinued Services" weitestgehend vermeiden, indem bei etablierten Anbietern eingekauft oder
+komplett auf die Abhängigkeit zu einem externen Service verzichtet wird. Auch dies ist bei "Breaking Updates" nicht möglich.
+
+
+\section{Dependency Managment}
+Unter Dependency Management versteht man im Allgemeinen das Strukturieren von Abhängigkeiten verschiedener 
+Systeme/Programme. Oft können Programme nur in Abhängigkeit von anderen Programmen starten.
+Dies stellt kein Problem dar, solange die Abhängigkeiten in ihrer Anzahl überschaubar bleiben. 
+Realität ist jedoch, dass Programme meist von mehreren Programmen abhängig sind und diese
+Programme wiederum abhängig von Anderen sind. Bei zu vielen Abhängigkeiten verliert man 
+als Entwickler und auch als Nutzer den Überblick. Dieses Wirrwarr an Abhängigkeiten bezeichnet man umgangssprachlich 
+als "Dependency Hell". Sobald der Überblick verloren ist, wird es äußerst schwierig weitere Änderungen am
+System vorzunehmen.
+
+\subsection{Bekannte Probleme}
+Es folgt eine kleine Zusammenfassung, der am häufigsten auftretenden Formen der "Dependency Hell" [11]:
+\begin{itemize}
+ \item Long Chain of Dependencies: Ein Programm A ist abhängig von einem Programm B. Das Programm B wiederum ist abhängig von einem Programm C.
+Möchte man nun Programm A nutzen, benötigt man zusätzlich Programm B und damit auch Programm C. Solche Ketten können Konflikte verursachen.
+(Siehe Conflicting Dependencies)
+\item Conflicting Dependencies: Sei ein Programm A abhängig von einem Programm B1.1, ein anderes Programm B ist abhängig von Programm B1.2. Programm B 
+kann aber nicht gleichzeitig mit der Version 1.1 und der Version 1.2 installiert sein. Dies bedeutet, Programm A und B können nicht gleichzeitig in einem System laufen.
+\item Circular Dependencies: Sei ein Programm A abhängig von einer spezifischen Version von Programm B. Programm B wiederum ist abhängig von einer spezifischen
+Version von Programm A. Beide Programme können nun nicht geupdatet werden, da sie die Abhängigkeiten kaputt verletzen würden.
+\item Version Lock: Durch einen Version Lock ist man dazu gezwungen beim Updaten einer Software alle abhängigen Programme ebenfalls upzudaten [12].
+\item Version Promiscuity: Werden Abhängigkeiten zu locker betrachtet können zukünftige Updates als kompatibel angesehen werden, obwohl sie es nicht sind.
+\end{itemize}
+
+
+\subsection{Lösungen}
+Für die genannten Probleme existieren bereits viele Ansätze, um gegen sie vorzugehen oder sie zu vermeiden. Dazu gehören [11]:
+\begin{itemize}
+ \item Semantic Versioning [12]: Semantic Versioning versioniert Software nach dem Format "MAJOR.MINOR.PATCH", um Probleme wie Version Lock 
+oder Version Promiscuity zu vermeiden. Dafür benötigt 
+man eine Schnittstelle der man die Änderungen an der Software mitteilt. Bei Änderungen, die die API betreffen und nicht abwärtskompatibel
+sind muss die MAJOR Nummer erhöht werden. Bei Änderungen, die abwärtskompatibel sind, muss die MINOR Nummer erhöht werden. 
+Änderungen, die die API nicht betreffen erhöhen die Patch Nummer. Es gibt noch viele weitere Spezifikationen bezüglich Semantic
+Versioning, das grobe Konzept sollte jedoch verstanden sein. 
+\item Package Manager: Package Manager sind Tools die sich um das installieren, updaten und konfigurieren von Programmen automatisch
+kümmern, wodurch eine manuelle Konfiguration nicht mehr nötig ist.
+\item Portable Applications: Portable Applikationen umgehen die Probleme, die
+Abhängigkeiten mit sich bringen. Sie funktionieren selbstständig,
+indem alle nötigen Komponenten bereits vorhanden sind.
+\end{itemize}
+
+Die Auflistungen zeigen, dass Dependency Management im Bereich des Software Engineerings ein bekanntes Problem ist, welches
+bereits viel Aufmerksamkeit bekommt. Dependency Management umfasst noch viele weitere Probleme und dazugehörige Lösungen und Lösungsansätze.
+Im Bereich Smart Home existiert jedoch nahezu keine Forschungsgrundlage. Als Nutzer besteht keine Möglichkeit, die
+Abhängigkeiten im eigenen System zu organisieren, wodurch die Langlebigkeit von Smart Home Systemen gefährdet ist. 
+
+
+\section{Fazit}
+
+Im Bereich Software Engineering ist Langlebigkeit ein bereits erforschtes Themengebiet. Smart Home Systeme sind Teil des
+Software Engineerings, nichtsdestotrotz existiert wenig Forschungsgrundlage bezüglich der Langlebigkeit von Smart Home Systemen.
+Dabei werden Smart Home Systeme als Luxusgüter angesehen, von denen aufgrund der hohen Preise eine lange Lebensspanne erwartet wird.
+Um dies zu gewährleisten, werden generelle Ansätze des Software Engineerings bezüglich Langlebigkeit genutzt, ausreichend ist dies jedoch nicht.
+Ohne Dependency Management kann nicht gewährleistet werden, dass Updates keine Ausfälle in Smart Home Systemen verursachen.
+Dies ist am Beispiel des Logitech Harmony Hub's zu sehen [13]. Logitech hatte eine
+neue Firmware Version für das Hub veröffentlicht, welche Sicherheitslücken schließen und Bugs fixen sollte.
+Nachdem Update kam es vermehrt zu Ausfällen zwischen dem Hub und third-party Geräten. Für die Nutzer bestand keine Möglichkeit das Problem
+zu lösen. Sie konnten nur darauf hoffen, dass Logitech die Probleme wieder behebt. Dies hat Logitech in diesem Fall auch getan,
+dennoch zeigt das Beispiel, wie leichtsinnig Updates von Nutzern installiert werden. Eine andere Wahl bleibt einem Nutzer auch nicht, da 
+es wie eingangs erwähnt, zur Zeit keine Möglichkeiten gibt Updates vor der Installation zu überprüfen.
+Insgesamt zeigt der aktuelle Stand der Forschung also, dass Alternativen nötig sind, um die Langlebigkeit von Smart Home
+Systemen zu gewährleisten.
+
+
+
+
+
+
+
